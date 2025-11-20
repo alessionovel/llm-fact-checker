@@ -164,8 +164,8 @@ def main():
         '--output',
         dest='output_file',
         type=str,
-        default='results.xlsx',
-        help='Path for the output Excel file (default: results.xlsx)'
+        default='output.xlsx',
+        help='Path for the output Excel file (default: output.xlsx)'
     )
 
     # 3. Parse the arguments

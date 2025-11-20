@@ -10,7 +10,7 @@ This tool reads statements from an Excel file, sends each statement to an LLM fo
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/llm-fact-checker.git
+git clone https://github.com/alessionovel/llm-fact-checker.git
 cd llm-fact-checker
 
 # Install dependencies
@@ -25,12 +25,12 @@ cp .env.example .env
 
 Basic usage:
 ```bash
-python queryLLM.py --file Example.xlsx
+python queryLLM.py --file input.xlsx
 ```
 
 With custom output and verbose mode:
 ```bash
-python queryLLM.py --file Example.xlsx --output my_results.xlsx --verbose
+python queryLLM.py --file input.xlsx --output my_results.xlsx --verbose
 ```
 
 ### Input Format
@@ -61,7 +61,7 @@ The tool uses environment variables for API configuration:
 ## Command Line Arguments
 
 - `--file` (required): Path to input Excel file
-- `--output` (optional): Path for output file (default: `results.xlsx`)
+- `--output` (optional): Path for output file (default: `output.xlsx`)
 - `--verbose` (optional): Enable detailed logging
 
 ## Requirements
