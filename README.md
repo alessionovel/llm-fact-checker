@@ -6,14 +6,6 @@ An automated fact-checking tool that processes statements from Excel files using
 
 This tool reads statements from an Excel file, sends each statement to an LLM for analysis, and generates a results file containing the verification status (TRUE/FALSE/INSUFFICIENT INFO) along with confidence scores.
 
-## Features
-
-- 📊 **Excel Integration**: Read statements from Excel files and export results back to Excel
-- 🤖 **LLM-Powered**: Uses Hugging Face's Inference API with configurable models
-- 📈 **Confidence Scoring**: Returns confidence levels (0.0-1.0) for TRUE/FALSE determinations
-- 🔍 **Verbose Mode**: Optional detailed logging for debugging and monitoring
-- ⚙️ **Configurable Output**: Specify custom output file paths
-
 ## Installation
 
 ```bash
