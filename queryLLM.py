@@ -26,13 +26,13 @@ def query_llm(statement):
 
     prompt = f"""Analyze the following statement and determine if it is TRUE, FALSE, or if there is INSUFFICIENT INFO to make a determination.
 
-Statement: {statement}
+    Statement: {statement}
 
-Please respond in the following format:
-Response: [TRUE/FALSE/INSUFFICIENT INFO]
-Confidence: [0.0-1.0 or N/A if INSUFFICIENT INFO]
+    Please respond in the following format:
+    Response: [TRUE/FALSE/INSUFFICIENT INFO]
+    Confidence: [0.0-1.0 or N/A if INSUFFICIENT INFO]
 
-Provide only these two lines in your response."""
+    Provide only these two lines in your response."""
 
     completion = client.chat.completions.create(
         model="openai/gpt-oss-20b:groq",
