@@ -4,3 +4,4 @@ python-dotenv
 huggingface-hub
 google-genai
 openai
+tqdm

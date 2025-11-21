@@ -4,24 +4,32 @@ An automated fact-checking tool that processes statements from Excel files using
 
 ## Overview
 
-This tool reads statements from an Excel file, sends each statement to an LLM for analysis, and generates a results file containing the verification status (TRUE/FALSE/INSUFFICIENT INFO) along with confidence scores. The tool supports multiple LLM providers including Hugging Face, Google Gemini, and Azure OpenAI.
+This tool reads statements from an Excel file, sends each statement to an LLM for analysis, and generates a results file containing the verification status (TRUE/FALSE/INSUFFICIENT INFO) along with confidence scores. The tool runs locally using Ollama, though it can be adapted to work with API-based providers if desired.
+
+## Prerequisites
+
+Before you begin, make sure you have the following installed:
+
+1. **Python 3.7+**: Check your version with `python --version` or `python3 --version`
+2. **Ollama**: Download and install from [https://ollama.com](https://ollama.com)
+3. **A compatible LLM model**: After installing Ollama, pull a model (e.g., `ollama pull llama2`)
 
 ## Installation
 
+1. Clone the repository:
 ```bash
-# Clone the repository
 git clone https://github.com/alessionovel/llm-fact-checker.git
 cd llm-fact-checker
+```
 
-# Install dependencies
+2. Install Python dependencies:
+```bash
 pip install -r requirements.txt
+```
 
-# Set up your environment variables
-cp .env.example .env
-# Add your API token to .env:
-# - HUGGINGFACE_API_TOKEN (if using Hugging Face)
-# - GEMINI_API_KEY (if using Google Gemini)
-# - AZURE_OPENAI_API_KEY (if using Azure OpenAI)
+3. Ensure Ollama is running:
+```bash
+ollama serve
 ```
 
 ## Usage
@@ -56,18 +64,6 @@ The tool generates an Excel file with the following columns:
 | Water boils at 100°C at sea level | TRUE | 0.98 |
 | ... | INSUFFICIENT INFO | N/A |
 
-## Configuration
-
-The tool uses environment variables for API configuration:
-- `HUGGINGFACE_API_TOKEN`: Your Hugging Face API token (required if using Hugging Face model)
-- `GEMINI_API_KEY`: Your Google Gemini API key (required if using Gemini model)
-- `AZURE_OPENAI_API_KEY`: Your Azure OpenAI API key (required if using Azure OpenAI model)
-
-**Note**: The current version uses Google Gemini (gemini-2.0-flash-lite) by default. To use a different provider, modify the `process_statements()` function in `queryLLM.py` to call the appropriate function:
-- `query_llm_huggingface()` for Hugging Face
-- `query_llm_gemini()` for Google Gemini (default)
-- `query_llm_azure_openai()` for Azure OpenAI
-
 ## Command Line Arguments
 
 - `--file` (required): Path to input Excel file
@@ -77,12 +73,12 @@ The tool uses environment variables for API configuration:
 ## Requirements
 
 - Python 3.7+
+- Ollama (running locally)
 - pandas
-- huggingface_hub
-- google-genai
-- openai
-- python-dotenv
 - openpyxl
+- tqdm
+
+All Python requirements are listed in `requirements.txt` and can be installed with `pip install -r requirements.txt`.
 
 ## License
 
