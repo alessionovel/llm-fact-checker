@@ -149,7 +149,7 @@ def query_llm_azure_openai(statement):
     
     client = OpenAI(
         base_url=endpoint,
-        api_key=os.environ.get("AZURE_OPENAI_API_KEY")
+        api_key=os.environ.get("AZURE_API_KEY")
     )
 
     prompt = f"""Analyze the following statement and determine if it is TRUE, FALSE, or if there is INSUFFICIENT INFO to make a determination.
@@ -218,7 +218,7 @@ def process_statements(statements, verbose=False):
             print(f"Processing statement {idx + 1}/{len(statements)}")
         
         # Query the LLM for this statement
-        llm_result = query_llm_gemini(statement)
+        llm_result = query_llm_azure_openai(statement)
         
         results.append({
             'statement': statement,
