@@ -5,10 +5,11 @@ import os
 import sys
 from dotenv import load_dotenv
 from huggingface_hub import InferenceClient
+from google import genai
 
 
 
-def query_llm(statement):
+def query_llm_huggingface(statement):
     """
     Sends a statement to the LLM and receives a response.
     
@@ -72,6 +73,64 @@ def query_llm(statement):
     
     return result
 
+def query_llm_gemini(statement):
+    """
+    Sends a statement to the LLM and receives a response using Google Gemini.
+    
+    Args:
+        statement (str): The statement to analyze
+    
+    Returns:
+        dict: Dictionary with keys 'response' ("TRUE", "FALSE", or "INSUFFICIENT INFO")
+              and 'confidence' (float, only if response is "TRUE" or "FALSE")
+    """
+
+    # The client gets the API key from the environment variable `GEMINI_API_KEY`.
+    client = genai.Client()
+
+    prompt = f"""Analyze the following statement and determine if it is TRUE, FALSE, or if there is INSUFFICIENT INFO to make a determination.
+
+    Statement: {statement}
+
+    Please respond in the following format:
+    Response: [TRUE/FALSE/INSUFFICIENT INFO]
+    Confidence: [0.0-1.0 or N/A if INSUFFICIENT INFO]
+
+    Provide only these two lines in your response."""
+
+    response = client.models.generate_content(
+        model="gemini-2.0-flash-lite",
+        contents=prompt
+    )
+
+    response_text = response.text
+    print(f"LLM Response: {response_text}")
+
+    # Parse the response
+    result = {
+        'response': 'INSUFFICIENT INFO',
+        'confidence': None
+    }
+    
+    try:
+        lines = response_text.strip().split('\n')
+        for line in lines:
+            if line.startswith('Response:'):
+                response_value = line.split(':', 1)[1].strip().upper()
+                if response_value in ['TRUE', 'FALSE', 'INSUFFICIENT INFO']:
+                    result['response'] = response_value
+            elif line.startswith('Confidence:'):
+                confidence_value = line.split(':', 1)[1].strip()
+                if confidence_value.upper() != 'N/A':
+                    try:
+                        result['confidence'] = float(confidence_value)
+                    except ValueError:
+                        pass
+    except Exception as e:
+        print(f"Error parsing LLM response: {e}")
+    
+    return result
+
 def process_statements(statements, verbose=False):
     """
     Processes each statement by querying the LLM.
@@ -90,7 +149,7 @@ def process_statements(statements, verbose=False):
             print(f"Processing statement {idx + 1}/{len(statements)}")
         
         # Query the LLM for this statement
-        llm_result = query_llm(statement)
+        llm_result = query_llm_gemini(statement)
         
         results.append({
             'statement': statement,
