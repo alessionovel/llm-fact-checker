@@ -12,7 +12,7 @@ Before you begin, make sure you have the following installed:
 
 1. **Python 3.7+**: Check your version with `python --version` or `python3 --version`
 2. **Ollama**: Download and install from [https://ollama.com](https://ollama.com)
-3. **A compatible LLM model**: After installing Ollama, pull a model (e.g., `ollama pull llama2`)
+3. **Llama 3.2 model**: After installing Ollama, pull the model with `ollama pull llama3.2`
 
 ## Installation
 
@@ -79,11 +79,3 @@ The tool generates an Excel file with the following columns:
 - tqdm
 
 All Python requirements are listed in `requirements.txt` and can be installed with `pip install -r requirements.txt`.
-
-## License
-
-MIT License
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
