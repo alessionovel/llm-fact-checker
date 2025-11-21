@@ -1,7 +1,4 @@
 pandas
 openpyxl
-python-dotenv
-huggingface-hub
-google-genai
-openai
+ollama
 tqdm

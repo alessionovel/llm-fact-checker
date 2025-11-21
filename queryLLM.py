@@ -1,9 +1,7 @@
 import argparse
-from xmlrpc import client
 import pandas as pd
 import os
 import sys
-from dotenv import load_dotenv
 import ollama
 from tqdm import tqdm
 
@@ -226,7 +224,6 @@ def read_excel_file(file_path, verbose=False):
     return statements
 
 def main():
-    load_dotenv()
 
     # 1. Create the parser
     parser = argparse.ArgumentParser(

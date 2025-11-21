@@ -76,6 +76,7 @@ The tool generates an Excel file with the following columns:
 - Ollama (running locally)
 - pandas
 - openpyxl
+- ollama
 - tqdm
 
 All Python requirements are listed in `requirements.txt` and can be installed with `pip install -r requirements.txt`.
