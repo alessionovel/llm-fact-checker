@@ -4,7 +4,7 @@ An automated fact-checking tool that processes statements from Excel files using
 
 ## Overview
 
-This tool reads statements from an Excel file, sends each statement to an LLM for analysis, and generates a results file containing the verification status (TRUE/FALSE/INSUFFICIENT INFO) along with confidence scores.
+This tool reads statements from an Excel file, sends each statement to an LLM for analysis, and generates a results file containing the verification status (TRUE/FALSE/INSUFFICIENT INFO) along with confidence scores. The tool supports multiple LLM providers including Hugging Face and Google Gemini.
 
 ## Installation
 
@@ -18,7 +18,9 @@ pip install -r requirements.txt
 
 # Set up your environment variables
 cp .env.example .env
-# Add your HUGGINGFACE_API_TOKEN to .env
+# Add your API token to .env:
+# - HUGGINGFACE_API_TOKEN (if using Hugging Face)
+# - GEMINI_API_KEY (if using Google Gemini)
 ```
 
 ## Usage
@@ -56,7 +58,10 @@ The tool generates an Excel file with the following columns:
 ## Configuration
 
 The tool uses environment variables for API configuration:
-- `HUGGINGFACE_API_TOKEN`: Your Hugging Face API token
+- `HUGGINGFACE_API_TOKEN`: Your Hugging Face API token (required if using Hugging Face model)
+- `GEMINI_API_KEY`: Your Google Gemini API key (required if using Gemini model)
+
+**Note**: The current version uses Google Gemini (gemini-2.0-flash-lite) by default. To use Hugging Face instead, modify the `process_statements()` function in `queryLLM.py` to call `query_llm_huggingface()` instead of `query_llm_gemini()`.
 
 ## Command Line Arguments
 
@@ -69,6 +74,7 @@ The tool uses environment variables for API configuration:
 - Python 3.7+
 - pandas
 - huggingface_hub
+- google-genai
 - python-dotenv
 - openpyxl
 
