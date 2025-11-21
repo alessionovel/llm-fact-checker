@@ -77,10 +77,10 @@ Rules:
 
 ## Command Line Arguments
 
--- `--file` (required): Path to input Excel file (`.xlsx`) containing a `Statement` column
--- `--output` (optional): Path for output file (default: `output.xlsx`)
--- `--verbose` (optional): Enable detailed logging
--- `--model` (optional): Name of the Ollama model to use (default: `llama3.2`)
+- `--file` (required): Path to input Excel file (`.xlsx`) containing a `Statement` column
+- `--output` (optional): Path for output file (default: `output.xlsx`)
+- `--verbose` (optional): Enable detailed logging
+- `--model` (optional): Name of the Ollama model to use (default: `llama3.2`)
 
 ## Requirements
 
