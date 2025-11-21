@@ -4,7 +4,7 @@ An automated fact-checking tool that processes statements from Excel files using
 
 ## Overview
 
-This tool reads statements from an Excel file, sends each statement to an LLM for analysis, and generates a results file containing the verification status (TRUE/FALSE/INSUFFICIENT INFO) along with confidence scores. The tool supports multiple LLM providers including Hugging Face and Google Gemini.
+This tool reads statements from an Excel file, sends each statement to an LLM for analysis, and generates a results file containing the verification status (TRUE/FALSE/INSUFFICIENT INFO) along with confidence scores. The tool supports multiple LLM providers including Hugging Face, Google Gemini, and Azure OpenAI.
 
 ## Installation
 
@@ -21,6 +21,7 @@ cp .env.example .env
 # Add your API token to .env:
 # - HUGGINGFACE_API_TOKEN (if using Hugging Face)
 # - GEMINI_API_KEY (if using Google Gemini)
+# - AZURE_OPENAI_API_KEY (if using Azure OpenAI)
 ```
 
 ## Usage
@@ -60,8 +61,12 @@ The tool generates an Excel file with the following columns:
 The tool uses environment variables for API configuration:
 - `HUGGINGFACE_API_TOKEN`: Your Hugging Face API token (required if using Hugging Face model)
 - `GEMINI_API_KEY`: Your Google Gemini API key (required if using Gemini model)
+- `AZURE_OPENAI_API_KEY`: Your Azure OpenAI API key (required if using Azure OpenAI model)
 
-**Note**: The current version uses Google Gemini (gemini-2.0-flash-lite) by default. To use Hugging Face instead, modify the `process_statements()` function in `queryLLM.py` to call `query_llm_huggingface()` instead of `query_llm_gemini()`.
+**Note**: The current version uses Google Gemini (gemini-2.0-flash-lite) by default. To use a different provider, modify the `process_statements()` function in `queryLLM.py` to call the appropriate function:
+- `query_llm_huggingface()` for Hugging Face
+- `query_llm_gemini()` for Google Gemini (default)
+- `query_llm_azure_openai()` for Azure OpenAI
 
 ## Command Line Arguments
 
@@ -75,6 +80,7 @@ The tool uses environment variables for API configuration:
 - pandas
 - huggingface_hub
 - google-genai
+- openai
 - python-dotenv
 - openpyxl
 

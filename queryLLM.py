@@ -6,6 +6,7 @@ import sys
 from dotenv import load_dotenv
 from huggingface_hub import InferenceClient
 from google import genai
+from openai import OpenAI
 
 
 
@@ -104,6 +105,74 @@ def query_llm_gemini(statement):
     )
 
     response_text = response.text
+    print(f"LLM Response: {response_text}")
+
+    # Parse the response
+    result = {
+        'response': 'INSUFFICIENT INFO',
+        'confidence': None
+    }
+    
+    try:
+        lines = response_text.strip().split('\n')
+        for line in lines:
+            if line.startswith('Response:'):
+                response_value = line.split(':', 1)[1].strip().upper()
+                if response_value in ['TRUE', 'FALSE', 'INSUFFICIENT INFO']:
+                    result['response'] = response_value
+            elif line.startswith('Confidence:'):
+                confidence_value = line.split(':', 1)[1].strip()
+                if confidence_value.upper() != 'N/A':
+                    try:
+                        result['confidence'] = float(confidence_value)
+                    except ValueError:
+                        pass
+    except Exception as e:
+        print(f"Error parsing LLM response: {e}")
+    
+    return result
+
+def query_llm_azure_openai(statement):
+    """
+    Sends a statement to the LLM and receives a response using Azure OpenAI.
+    
+    Args:
+        statement (str): The statement to analyze
+    
+    Returns:
+        dict: Dictionary with keys 'response' ("TRUE", "FALSE", or "INSUFFICIENT INFO")
+              and 'confidence' (float, only if response is "TRUE" or "FALSE")
+    """
+
+    endpoint = "https://course-gpt4o-resource.openai.azure.com/openai/v1"
+    deployment_name = "gpt-4o"
+    
+    client = OpenAI(
+        base_url=endpoint,
+        api_key=os.environ.get("AZURE_OPENAI_API_KEY")
+    )
+
+    prompt = f"""Analyze the following statement and determine if it is TRUE, FALSE, or if there is INSUFFICIENT INFO to make a determination.
+
+    Statement: {statement}
+
+    Please respond in the following format:
+    Response: [TRUE/FALSE/INSUFFICIENT INFO]
+    Confidence: [0.0-1.0 or N/A if INSUFFICIENT INFO]
+
+    Provide only these two lines in your response."""
+
+    completion = client.chat.completions.create(
+        model=deployment_name,
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+    )
+
+    response_text = completion.choices[0].message.content
     print(f"LLM Response: {response_text}")
 
     # Parse the response
