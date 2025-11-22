@@ -17,7 +17,6 @@ class Truth(BaseModel):
     verdict: Literal["TRUE", "FALSE", "INSUFFICIENT INFO"]
     confidence: int | None
 
-    '''
     @field_validator("verdict", mode="before")
     def normalize_verdict(cls, v):  # noqa: D401
         # Normalize case and common variants
@@ -45,7 +44,6 @@ class Truth(BaseModel):
         if not (0 <= v_int <= 100):
             raise ValueError("Confidence must be between 0 and 100")
         return v_int
-    '''
 
 def query_llm_ollama(statement, client, verbose=False):
     """
