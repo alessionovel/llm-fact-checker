@@ -17,6 +17,7 @@ class Truth(BaseModel):
     verdict: Literal["TRUE", "FALSE", "INSUFFICIENT INFO"]
     confidence: float | None
 
+    
     @field_validator("verdict", mode="before")
     def normalize_verdict(cls, v):  # noqa: D401
         # Normalize case and common variants
@@ -177,6 +178,48 @@ def create_client(model_name):
     )
     return client
 
+def test_client_connection(client, verbose=False):
+    """
+    Tests if the Ollama client is working by sending a simple test query.
+    
+    Args:
+        client (OpenAILikeClient): The LLM client instance to test
+        verbose (bool): If True, print detailed information
+    
+    Raises:
+        ConnectionError: If Ollama is not running or the connection fails
+        ValueError: If the model is not available
+    """
+    if verbose:
+        print("Testing connection to Ollama...")
+    
+    try:
+        # Send a simple test query
+        test_prompt = "Respond with the word 'ok' only."
+        response = client.structured_response(input=test_prompt, output_cls=Truth)
+        
+        if verbose:
+            print("✓ Connection to Ollama successful!")
+        
+    except Exception as e:
+        error_msg = str(e).lower()
+        
+        # Check for common connection errors
+        if "connection" in error_msg or "refused" in error_msg or "unreachable" in error_msg:
+            raise ConnectionError(
+                f"Cannot connect to Ollama. Please ensure Ollama is running with 'ollama serve'.\n"
+                f"Error details: {e}"
+            )
+        elif "model" in error_msg or "not found" in error_msg:
+            raise ValueError(
+                f"Model '{client.model}' not found. Please download it first with 'ollama pull {client.model}'.\n"
+                f"Error details: {e}"
+            )
+        else:
+            raise ConnectionError(
+                f"Failed to communicate with Ollama: {e}"
+            )
+
 def main():
     # Create argument parser
     parser = argparse.ArgumentParser(
@@ -219,6 +262,13 @@ def main():
 
     # Create LLM client with specified model
     client = create_client(args.model_name)
+    
+    # Test client connection before processing
+    try:
+        test_client_connection(client, args.verbose)
+    except (ConnectionError, ValueError) as e:
+        print(f"Error: {e}")
+        sys.exit(1)
 
     # Get file paths from arguments
     file_path = args.file_input
