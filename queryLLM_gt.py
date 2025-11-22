@@ -110,7 +110,7 @@ def process_statements(statements, client, verbose=False):
     
     return results
 
-def save_results_to_excel(results, output_path):
+def save_results_to_excel(results, ground_truths, output_path):
     """
     Saves the results to an Excel file.
     
@@ -119,6 +119,7 @@ def save_results_to_excel(results, output_path):
         output_path (str): Path where to save the output Excel file
     """
     df_results = pd.DataFrame(results)
+    df_results["GroundTruth"] = ground_truths
     df_results.to_excel(output_path, index=False)
     print(f"Results saved to: {output_path}")
 
@@ -140,13 +141,14 @@ def read_excel_file(file_path, verbose=False):
         raise KeyError("Input file must contain a 'Statement' column")
 
     statements = df['Statement'].dropna().astype(str).tolist()
+    ground_truths = df['GroundTruth'].dropna().astype(str).tolist() if 'GroundTruth' in df.columns else []
     
     if verbose:
         print(f"--- Total rows found: {len(df)} ---")
         print(f"--- Total statements extracted: {len(statements)} ---")
         print(f"Successfully extracted {len(statements)} statements from the 'Statement' column.")
     
-    return statements
+    return statements, ground_truths
 
 def create_client(model_name):
     """
@@ -274,14 +276,15 @@ def main():
         print(f"--- Starting processing of file: {file_path} ---")
 
     try:
-        statements = read_excel_file(file_path, args.verbose)
+        statements, _ = read_excel_file(file_path, args.verbose)
+        _, ground_truths = read_excel_file(file_path, args.verbose)
     except Exception as e:
         print(f"Failed to read input file: {e}")
         sys.exit(1)
 
     try:
         results = process_statements(statements, client, args.verbose)
-        save_results_to_excel(results, output_path)
+        save_results_to_excel(results, ground_truths, output_path)
     except Exception as e:
         print(f"Processing error: {e}")
         sys.exit(1)
