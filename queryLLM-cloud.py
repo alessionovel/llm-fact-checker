@@ -2,10 +2,15 @@ import argparse
 import pandas as pd
 import os
 import sys
+import json
 from tqdm import tqdm
-from datapizza.clients.openai_like import OpenAILikeClient
+from ollama import Client
 from pydantic import BaseModel, field_validator
 from typing import Literal
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 class Truth(BaseModel):
     """Structured response model for LLM fact-checking output.
@@ -17,10 +22,6 @@ class Truth(BaseModel):
     verdict: Literal["TRUE", "FALSE", "INSUFFICIENT INFO"]
     confidence: int | None
 
-<<<<<<< HEAD
-    
-=======
->>>>>>> 6c08610b03d32915854ac71de4a1826488fec500
     @field_validator("verdict", mode="before")
     def normalize_verdict(cls, v):  # noqa: D401
         # Normalize case and common variants
@@ -48,18 +49,15 @@ class Truth(BaseModel):
         if not (0 <= v_int <= 100):
             raise ValueError("Confidence must be between 0 and 100")
         return v_int
-<<<<<<< HEAD
-    
-=======
->>>>>>> 6c08610b03d32915854ac71de4a1826488fec500
 
-def query_llm_ollama(statement, client, verbose=False):
+def query_llm_ollama(statement, client, model, verbose=False):
     """
     Sends a statement to the LLM and receives a response using Ollama.
     
     Args:
         statement (str): The statement to analyze
-        client (OpenAILikeClient): The LLM client instance
+        client (Client): The Ollama client instance
+        model (str): The model name to use
         verbose (bool): If True, print the LLM response
     
     Returns:
@@ -76,27 +74,55 @@ def query_llm_ollama(statement, client, verbose=False):
         f"{statement}"
     )
 
+    messages = [
+        {
+            'role': 'system',
+            'content': 'You are a rigorous Fact-Checking Analyst. You function deterministically: identical inputs must always yield identical reasoning paths and conclusions.'
+        },
+        {
+            'role': 'user',
+            'content': prompt
+        }
+    ]
+
     try:
-        response = client.structured_response(input=prompt, output_cls=Truth)
+        # Collect the full response from streaming
+        full_response = ''
+        for part in client.chat(model, messages=messages, stream=True):
+            full_response += part['message']['content']
+        
         if verbose:
-            print(f"Raw structured response: {response}")
-        data_list = getattr(response, "structured_data", [])
-        if not data_list:
-            raise ValueError("No structured data returned by LLM")
-        return data_list[0]
+            print(f"Raw LLM response: {full_response}")
+        
+        # Parse JSON response
+        # Try to extract JSON if it's embedded in text
+        response_text = full_response.strip()
+        if '```json' in response_text:
+            start = response_text.find('```json') + 7
+            end = response_text.find('```', start)
+            response_text = response_text[start:end].strip()
+        elif '```' in response_text:
+            start = response_text.find('```') + 3
+            end = response_text.find('```', start)
+            response_text = response_text[start:end].strip()
+        
+        # Parse JSON and validate with Pydantic
+        json_data = json.loads(response_text)
+        return Truth(**json_data)
     except Exception as e:
         if verbose:
             print(f"Error during LLM query for statement: {statement}\n{e}")
         # Fallback neutral response
         return Truth(verdict="INSUFFICIENT INFO", confidence=None)
 
-def process_statements(statements, client, verbose=False):
+def process_statements(statements, client, model, verbose=False):
     """
     Processes each statement by querying the LLM.
     
     Args:
         statements (list): List of statements to process
-        client (OpenAILikeClient): The LLM client instance
+        client (Client): The Ollama client instance
+        model (str): The model name to use
         verbose (bool): If True, print detailed information
     
     Returns:
@@ -106,7 +132,7 @@ def process_statements(statements, client, verbose=False):
     
     for statement in tqdm(statements, desc="Processing statements", unit="statement"):
         # Query the LLM for this statement
-        llm_result = query_llm_ollama(statement, client, verbose)
+        llm_result = query_llm_ollama(statement, client, model, verbose)
         
         results.append({
             'statement': statement,
@@ -154,37 +180,37 @@ def read_excel_file(file_path, verbose=False):
     
     return statements
 
-def create_client(model_name):
+def create_client():
     """
-    Creates an OpenAI-like client configured for Ollama.
-    
-    Args:
-        model_name (str): Name of the Ollama model to use (e.g., "llama3.2")
+    Creates an Ollama client configured with API key from environment.
     
     Returns:
-        OpenAILikeClient: Configured client instance
+        Client: Configured Ollama client instance
     """
-    client = OpenAILikeClient(
-        api_key="",  # Ollama doesn't require an API key
-        model=model_name,
-        system_prompt=(
-            """You are a rigorous Fact-Checking Analyst. You function deterministically: identical inputs must always yield identical reasoning paths and conclusions."""
-        ),
-        base_url="http://localhost:11434/v1",  # Default Ollama API endpoint
-        temperature=0.0,
+    api_key = os.environ.get('OLLAMA_API_KEY')
+    if not api_key:
+        raise ValueError(
+            "OLLAMA_API_KEY environment variable is not set. "
+            "Please set it with: export OLLAMA_API_KEY='your-api-key'"
+        )
+    
+    client = Client(
+        host="https://ollama.com",
+        headers={'Authorization': 'Bearer ' + api_key}
     )
     return client
 
-def test_client_connection(client, verbose=False):
+def test_client_connection(client, model, verbose=False):
     """
     Tests if the Ollama client is working by sending a simple test query.
     
     Args:
-        client (OpenAILikeClient): The LLM client instance to test
+        client (Client): The Ollama client instance to test
+        model (str): The model name to test
         verbose (bool): If True, print detailed information
     
     Raises:
-        ConnectionError: If Ollama is not running or the connection fails
+        ConnectionError: If Ollama is not reachable or the connection fails
         ValueError: If the model is not available
     """
     if verbose:
@@ -192,8 +218,21 @@ def test_client_connection(client, verbose=False):
     
     try:
         # Send a simple test query
-        test_prompt = "Respond with the word 'ok' only."
-        response = client.structured_response(input=test_prompt, output_cls=Truth)
+        messages = [
+            {
+                'role': 'user',
+                'content': 'Respond with the word "ok" only.'
+            }
+        ]
+        
+        # Try to get a response
+        response_received = False
+        for part in client.chat(model, messages=messages, stream=True):
+            response_received = True
+            break  # Just check if we get at least one part
+        
+        if not response_received:
+            raise ValueError("No response received from model")
         
         if verbose:
             print("✓ Connection to Ollama successful!")
@@ -204,12 +243,12 @@ def test_client_connection(client, verbose=False):
         # Check for common connection errors
         if "connection" in error_msg or "refused" in error_msg or "unreachable" in error_msg:
             raise ConnectionError(
-                f"Cannot connect to Ollama. Please ensure Ollama is running with 'ollama serve'.\n"
+                f"Cannot connect to Ollama at https://ollama.com. Please check your internet connection and API key.\n"
                 f"Error details: {e}"
             )
         elif "model" in error_msg or "not found" in error_msg:
             raise ValueError(
-                f"Model '{client.model}' not found. Please download it first with 'ollama pull {client.model}'.\n"
+                f"Model '{model}' not found or not accessible.\n"
                 f"Error details: {e}"
             )
         else:
@@ -257,12 +296,16 @@ def main():
     # Parse the arguments
     args = parser.parse_args()
 
-    # Create LLM client with specified model
-    client = create_client(args.model_name)
+    # Create LLM client
+    try:
+        client = create_client()
+    except ValueError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
     
     # Test client connection before processing
     try:
-        test_client_connection(client, args.verbose)
+        test_client_connection(client, args.model_name, args.verbose)
     except (ConnectionError, ValueError) as e:
         print(f"Error: {e}")
         sys.exit(1)
@@ -286,7 +329,7 @@ def main():
         sys.exit(1)
 
     try:
-        results = process_statements(statements, client, args.verbose)
+        results = process_statements(statements, client, args.model_name, args.verbose)
         save_results_to_excel(results, output_path)
     except Exception as e:
         print(f"Processing error: {e}")
