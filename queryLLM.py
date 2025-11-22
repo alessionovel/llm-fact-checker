@@ -12,12 +12,12 @@ class Truth(BaseModel):
 
     Attributes:
         verdict: One of TRUE, FALSE, INSUFFICIENT INFO
-        confidence: Float in [0,1] if verdict is TRUE or FALSE, else None
+        confidence: Integer in [0,100] if verdict is TRUE or FALSE, else None
     """
     verdict: Literal["TRUE", "FALSE", "INSUFFICIENT INFO"]
-    confidence: float | None
+    confidence: int | None
 
-    
+    '''
     @field_validator("verdict", mode="before")
     def normalize_verdict(cls, v):  # noqa: D401
         # Normalize case and common variants
@@ -38,9 +38,14 @@ class Truth(BaseModel):
             return None
         if v is None:
             raise ValueError("Confidence required for TRUE/FALSE verdicts")
-        if not (0.0 <= v <= 1.0):
-            raise ValueError("Confidence must be between 0 and 1")
-        return v
+        if not isinstance(v, (int, float)):
+            raise ValueError("Confidence must be a number")
+        # Convert float to int if needed
+        v_int = int(v) if isinstance(v, float) else v
+        if not (0 <= v_int <= 100):
+            raise ValueError("Confidence must be between 0 and 100")
+        return v_int
+    '''
 
 def query_llm_ollama(statement, client, verbose=False):
     """
@@ -53,15 +58,15 @@ def query_llm_ollama(statement, client, verbose=False):
     
     Returns:
         Truth: Pydantic model with 'verdict' ("TRUE", "FALSE", or "INSUFFICIENT INFO")
-               and 'confidence' (float between 0-1, or None if verdict is "INSUFFICIENT INFO")
+               and 'confidence' (integer between 0-100, or None if verdict is "INSUFFICIENT INFO")
     """
 
     prompt = (
         "Given the statement below, "
         "respond ONLY with a JSON object matching the schema: {\n"
         "  'verdict': 'TRUE' | 'FALSE' | 'INSUFFICIENT INFO',\n"
-        "  'confidence': <float between 0 and 1 or null>\n"
-        "}. If you don't have enough information, your verdict should be INSUFFICIENT INFO, and in that case you set confidence to null. Statement: "
+        "  'confidence': <integer between 0 and 100 or null>\n"
+        "}. If you don't have enough information or you are not enough confident, your verdict should be INSUFFICIENT INFO, and in that case you set confidence to null. Statement: "
         f"{statement}"
     )
 
@@ -157,21 +162,7 @@ def create_client(model_name):
         api_key="",  # Ollama doesn't require an API key
         model=model_name,
         system_prompt=(
-            """You are a rigorous Fact-Checking Analyst. You function deterministically: identical inputs must always yield identical reasoning paths and conclusions.
-
-            Your process is as follows:
-
-            STEP 1: DECONSTRUCTION
-            Break the user's input into specific, atomic claims that can be verified independently.
-
-            STEP 2: EVIDENCE RETRIEVAL (Internal Knowledge)
-            Retrieve only well-established facts, scientific consensus, or historical records. explicitely exclude speculation, conspiracy theories, or highly partisan rhetoric.
-
-            STEP 3: LOGICAL COMPARISON
-            Compare the atomic claims against the evidence. Look for logical fallacies, omitted context, or statistical manipulation.
-
-            STEP 4: VERDICT
-            Based *only* on the steps above, provide a final verdict."""
+            """You are a rigorous Fact-Checking Analyst. You function deterministically: identical inputs must always yield identical reasoning paths and conclusions."""
         ),
         base_url="http://localhost:11434/v1",  # Default Ollama API endpoint
         temperature=0.0,
