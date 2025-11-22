@@ -56,11 +56,11 @@ def query_llm_ollama(statement, client, verbose=False):
     """
 
     prompt = (
-        "You are a fact-checking assistant. Given the statement below, "
+        "Given the statement below, "
         "respond ONLY with a JSON object matching the schema: {\n"
         "  'verdict': 'TRUE' | 'FALSE' | 'INSUFFICIENT INFO',\n"
         "  'confidence': <float between 0 and 1 or null>\n"
-        "}. If verdict is INSUFFICIENT INFO, set confidence to null. Statement: "
+        "}. If you don't have enough information, your verdict should be INSUFFICIENT INFO, and in that case you set confidence to null. Statement: "
         f"{statement}"
     )
 
@@ -155,7 +155,23 @@ def create_client(model_name):
     client = OpenAILikeClient(
         api_key="",  # Ollama doesn't require an API key
         model=model_name,
-        system_prompt="You are a fact checker. You must say your verdict with TRUE, FALSE, or INSUFFICIENT INFO. If the response is TRUE or FALSE, you must also provide a confidence score between 0 and 1.",
+        system_prompt=(
+            """You are a rigorous Fact-Checking Analyst. You function deterministically: identical inputs must always yield identical reasoning paths and conclusions.
+
+            Your process is as follows:
+
+            STEP 1: DECONSTRUCTION
+            Break the user's input into specific, atomic claims that can be verified independently.
+
+            STEP 2: EVIDENCE RETRIEVAL (Internal Knowledge)
+            Retrieve only well-established facts, scientific consensus, or historical records. explicitely exclude speculation, conspiracy theories, or highly partisan rhetoric.
+
+            STEP 3: LOGICAL COMPARISON
+            Compare the atomic claims against the evidence. Look for logical fallacies, omitted context, or statistical manipulation.
+
+            STEP 4: VERDICT
+            Based *only* on the steps above, provide a final verdict."""
+        ),
         base_url="http://localhost:11434/v1",  # Default Ollama API endpoint
         temperature=0.0,
     )
