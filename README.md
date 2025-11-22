@@ -115,4 +115,5 @@ pip install -r requirements.txt
 
 ## Notes
 
+- The model you want to use must be downloaded first using `ollama pull <model-name>` (e.g., `ollama pull llama3.2`).
 - Ensure Ollama is serving (`ollama serve`) before running the script.
