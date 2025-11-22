@@ -157,6 +157,7 @@ def create_client(model_name):
         model=model_name,
         system_prompt="You are a fact checker. You must say your verdict with TRUE, FALSE, or INSUFFICIENT INFO. If the response is TRUE or FALSE, you must also provide a confidence score between 0 and 1.",
         base_url="http://localhost:11434/v1",  # Default Ollama API endpoint
+        temperature=0.0,
     )
     return client
 

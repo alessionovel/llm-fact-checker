@@ -22,12 +22,26 @@ git clone https://github.com/alessionovel/llm-fact-checker.git
 cd llm-fact-checker
 ```
 
-2. Install Python dependencies (includes `datapizza-ai` and the OpenAI-like client wrapper):
+2. **Create a virtual environment** (recommended):
+
+   Using conda:
+   ```bash
+   conda create -n llm-fact-checker python=3.10
+   conda activate llm-fact-checker
+   ```
+
+   Alternatively, using venv:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install Python dependencies (includes `datapizza-ai` and the OpenAI-like client wrapper):
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Ensure Ollama is running:
+4. Ensure Ollama is running:
 ```bash
 ollama serve
 ```
