@@ -2,3 +2,6 @@
 .DS_Store
 output.xlsx
 test.xlsx
+
+# LibreOffice/Excel lock files
+.~lock.*#
