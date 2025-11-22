@@ -17,6 +17,7 @@ class Truth(BaseModel):
     verdict: Literal["TRUE", "FALSE", "INSUFFICIENT INFO"]
     confidence: float | None
 
+    
     @field_validator("verdict", mode="before")
     def normalize_verdict(cls, v):  # noqa: D401
         # Normalize case and common variants
