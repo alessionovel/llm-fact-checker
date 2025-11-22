@@ -80,13 +80,13 @@ The tool generates an Excel file with the following columns:
 
 | statement | verdict | confidence |
 |-----------|---------|------------|
-| The Earth is flat | FALSE | 0.95 |
-| Water boils at 100°C at sea level | TRUE | 0.98 |
+| The Earth is flat | FALSE | 95 |
+| Water boils at 100°C at sea level | TRUE | 98 |
 | ... | INSUFFICIENT INFO | (blank) |
 
 Rules:
 - `verdict` is one of `TRUE`, `FALSE`, `INSUFFICIENT INFO`.
-- `confidence` is a float in `[0,1]` only when verdict is `TRUE` or `FALSE`.
+- `confidence` is an integer in `[0,100]` only when verdict is `TRUE` or `FALSE`.
 - When verdict is `INSUFFICIENT INFO`, confidence is left empty (null).
 
 ## Command Line Arguments
