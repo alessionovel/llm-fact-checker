@@ -47,28 +47,44 @@ class Truth(BaseModel):
         return v_int
     
 
-def query_llm_ollama(statement, client, verbose=False):
+def query_llm_ollama(statement, client, prev: Truth | None = None, iteration: int = 0, verbose=False):
     """
     Sends a statement to the LLM and receives a response using Ollama.
-    
-    Args:
-        statement (str): The statement to analyze
-        client (OpenAILikeClient): The LLM client instance
-        verbose (bool): If True, print the LLM response
-    
-    Returns:
-        Truth: Pydantic model with 'verdict' ("TRUE", "FALSE", or "INSUFFICIENT INFO")
-               and 'confidence' (integer between 0-100, or None if verdict is "INSUFFICIENT INFO")
+    If prev is provided, ask the model to reconsider its previous answer.
     """
-
-    prompt = (
-        "Given the statement below, "
-        "respond ONLY with a JSON object matching the schema: {\n"
+    base_schema = (
+        "Respond ONLY with a JSON object matching the schema:\n"
+        "{\n"
         "  'verdict': 'TRUE' | 'FALSE' | 'INSUFFICIENT INFO',\n"
         "  'confidence': <integer between 0 and 100 or null>\n"
-        "}. If you don't have enough information or you are not enough confident, your verdict should be INSUFFICIENT INFO, and in that case you set confidence to null. Statement: "
-        f"{statement}"
+        "}\n"
+        "Rules:\n"
+        "- If you don't have enough information according to your knowledge to answer TRUE or FALSE to the statement, or you are not enough confident, or you do not have access to a particular information, then verdict = INSUFFICIENT INFO and confidence = null.\n"
+        "- Do not output anything except the JSON.\n"
     )
+
+    if prev is None:
+        prompt = (
+            "You are a rigorous fact-checking analyst.\n"
+            f"{base_schema}\n"
+            f"Statement: {statement}"
+        )
+    else:
+        prompt = (
+            "You are a rigorous fact-checking analyst.\n"
+            f"{base_schema}\n"
+            "You have answered this same statement before.\n"
+            f"Previous answer (iteration {iteration}):\n"
+            f"- verdict: {prev.verdict}\n"
+            f"- confidence: {prev.confidence}\n"
+            "Task:\n"
+            "- Re-evaluate the statement from scratch.\n"
+            "- If the previous verdict is still the best one, repeat it.\n"
+            "- Change the verdict ONLY if, after reconsideration, you think it was wrong.\n"
+            "- Do NOT change just to be different.\n"
+            "Now answer again.\n"
+            f"Statement: {statement}"
+        )
 
     try:
         response = client.structured_response(input=prompt, output_cls=Truth)
@@ -81,47 +97,47 @@ def query_llm_ollama(statement, client, verbose=False):
     except Exception as e:
         if verbose:
             print(f"Error during LLM query for statement: {statement}\n{e}")
-        # Fallback neutral response
         return Truth(verdict="INSUFFICIENT INFO", confidence=None)
 
-def process_statements(statements, client, verbose=False):
+
+def process_statements(statements, client, prev_map=None, iteration=0, verbose=False):
     """
     Processes each statement by querying the LLM.
-    
-    Args:
-        statements (list): List of statements to process
-        client (OpenAILikeClient): The LLM client instance
-        verbose (bool): If True, print detailed information
-    
-    Returns:
-        list: List of dictionaries containing the results for each statement
+    prev_map: dict {statement: Truth} from previous iteration
     """
     results = []
-    
-    for statement in tqdm(statements, desc="Processing statements", unit="statement"):
-        # Query the LLM for this statement
-        llm_result = query_llm_ollama(statement, client, verbose)
-        
+    prev_map = prev_map or {}
+
+    for statement in tqdm(statements, desc=f"Processing statements (iter {iteration+1})", unit="statement"):
+        prev = prev_map.get(statement)
+        llm_result = query_llm_ollama(statement, client, prev=prev, iteration=iteration, verbose=verbose)
+
         results.append({
-            'statement': statement,
-            'verdict': llm_result.verdict,
-            'confidence': llm_result.confidence
+            "statement": statement,
+            "verdict": llm_result.verdict,
+            "confidence": llm_result.confidence,
+            "iteration": iteration + 1
         })
-    
+
     return results
 
+
 def save_results_to_excel(results, ground_truths, output_path):
-    """
-    Saves the results to an Excel file.
-    
-    Args:
-        results (list): List of result dictionaries
-        output_path (str): Path where to save the output Excel file
-    """
     df_results = pd.DataFrame(results)
-    df_results["GroundTruth"] = ground_truths
+
+    if ground_truths:
+        if len(ground_truths) != len(df_results):
+            raise ValueError(
+                f"GroundTruth length ({len(ground_truths)}) "
+                f"does not match results length ({len(df_results)})."
+            )
+        df_results["GroundTruth"] = ground_truths
+    else:
+        df_results["GroundTruth"] = None
+
     df_results.to_excel(output_path, index=False)
     print(f"Results saved to: {output_path}")
+
 
 def read_excel_file(file_path, verbose=False):
     """
@@ -214,81 +230,68 @@ def test_client_connection(client, verbose=False):
             )
 
 def main():
-    # Create argument parser
     parser = argparse.ArgumentParser(
         description="Process Excel file statements through LLM and save results with confidence scores."
     )
-
-    # Add command-line arguments
-    parser.add_argument(
-        '--file', 
-        dest='file_input', 
-        required=True, 
-        type=str, 
-        help='Path to the input Excel file containing statements (.xlsx)'
-    )
-
-    parser.add_argument(
-        '--verbose', 
-        action='store_true', 
-        help='Print more details during execution'
-    )
-
-    parser.add_argument(
-        '--output',
-        dest='output_file',
-        type=str,
-        default='output.xlsx',
-        help='Path for the output Excel file (default: output.xlsx)'
-    )
-
-    parser.add_argument(
-        '--model',
-        dest='model_name',
-        type=str,
-        default='llama3.2',
-        help='Name of the Ollama model to use (default: llama3.2)'
-    )
-
-    # Parse the arguments
+    parser.add_argument('--file', dest='file_input', required=True, type=str,
+                        help='Path to the input Excel file containing statements (.xlsx)')
+    parser.add_argument('--verbose', action='store_true', help='Print more details during execution')
+    parser.add_argument('--output', dest='output_file', type=str, default='output.xlsx',
+                        help='Path for the output Excel file (default: output.xlsx)')
+    parser.add_argument('--model', dest='model_name', type=str, default='llama3.2',
+                        help='Name of the Ollama model to use (default: llama3.2)')
+    parser.add_argument('--iters', dest='num_iters', type=int, default=5,
+                        help='Number of self-refinement iterations (default: 5)')
     args = parser.parse_args()
 
-    # Create LLM client with specified model
     client = create_client(args.model_name)
-    
-    # Test client connection before processing
+
     try:
         test_client_connection(client, args.verbose)
     except (ConnectionError, ValueError) as e:
         print(f"Error: {e}")
         sys.exit(1)
 
-    # Get file paths from arguments
     file_path = args.file_input
     output_path = args.output_file
 
-    # Validate input file exists
     if not os.path.exists(file_path):
         print(f"Error: The file '{file_path}' was not found.")
         sys.exit(1)
 
-    if args.verbose:
-        print(f"--- Starting processing of file: {file_path} ---")
-
     try:
-        statements, _ = read_excel_file(file_path, args.verbose)
-        _, ground_truths = read_excel_file(file_path, args.verbose)
+        statements, ground_truths = read_excel_file(file_path, args.verbose)
     except Exception as e:
         print(f"Failed to read input file: {e}")
         sys.exit(1)
 
+    prev_map = None
+    final_results = None
+
     try:
-        for i in range(5):
-            results = process_statements(statements, client, args.verbose)
-            save_results_to_excel(results, ground_truths, output_path)
+        for i in range(args.num_iters):
+            final_results = process_statements(
+                statements,
+                client,
+                prev_map=prev_map,
+                iteration=i,
+                verbose=args.verbose
+            )
+
+            # aggiorna mappa per iterazione successiva
+            prev_map = {
+                r["statement"]: Truth(verdict=r["verdict"], confidence=r["confidence"])
+                for r in final_results
+            }
+
+        # salva SOLO ultima iterazione
+        save_results_to_excel(final_results, ground_truths, output_path)
+
     except Exception as e:
         print(f"Processing error: {e}")
         sys.exit(1)
+
+
 
 if __name__ == "__main__":
     main()
