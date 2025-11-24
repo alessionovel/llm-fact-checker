@@ -59,7 +59,7 @@ def query_llm_ollama(statement, client, prev: Truth | None = None, iteration: in
         "  'confidence': <integer between 0 and 100 or null>\n"
         "}\n"
         "Rules:\n"
-        "- If you don't have enough information according to your knowledge to answer TRUE or FALSE to the statement, or you are not enough confident, or you do not have access to a particular information, then verdict = INSUFFICIENT INFO and confidence = null.\n"
+        "- If you don't have enough information to answer TRUE or FALSE to the statement, such as statements inclulding personal information that is not accessible because it is not of public domain, then verdict = INSUFFICIENT INFO and confidence = null.\n"
         "- Do not output anything except the JSON.\n"
     )
 
