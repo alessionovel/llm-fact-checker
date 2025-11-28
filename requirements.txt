@@ -1,6 +1,6 @@
 pandas
 openpyxl
 tqdm
-datapizza-ai
-datapizza-ai-clients-openai-like
+openai
+python-dotenv
 pydantic
