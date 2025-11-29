@@ -70,7 +70,11 @@ python queryLLM.py --file input.xlsx --output my_results.xlsx --verbose
 
 ### Cloud/Remote API (Azure OpenAI)
 
-To use Azure OpenAI (or adapt to other APIs), use the `queryLLM-cloud.py` script. This version is designed for Azure but can be easily modified for other providers. You will need to set your API key and endpoint in your environment (see script for details).
+To use Azure OpenAI (or adapt to other APIs), use the `queryLLM-cloud.py` script. This version is designed for Azure but can be easily modified for other providers. 
+
+**Setup for Azure OpenAI:**
+1. Create a `.env` file in the project root directory
+2. Add your Azure OpenAI API key: `AZURE_OPENAI_API_KEY=your_api_key_here`
 
 Example usage:
 ```bash

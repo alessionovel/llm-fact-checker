@@ -4,3 +4,5 @@ tqdm
 openai
 python-dotenv
 pydantic
+datapizza-ai
+datapizza-ai-clients-openai-like
