@@ -3,10 +3,8 @@ import pandas as pd
 import os
 import sys
 from tqdm import tqdm
-from openai import OpenAI
-from pydantic import BaseModel, field_validator
-from typing import Literal
 from dotenv import load_dotenv
+from openai import OpenAI
 
 # Load environment variables
 load_dotenv()
@@ -45,22 +43,12 @@ def create_prompts(statement: str) -> list[str]:
         ),
     ]
 
-def create_reconsider_prompt(first_response: str) -> str:
-    """Create a prompt asking the model to reconsider its initial response.
-    
-    Args:
-        first_response: The initial response from the model
-        
-    Returns:
-        A prompt asking for reconsideration
-    """
-    return (
-        f"Your initial response was:\n{first_response}\n\n"
-        "Now reconsider your answer carefully. Provide your final judgment in the same format:\n"
-        "- First line: 'TRUE', 'FALSE', or 'INSUFFICIENT INFO' (nothing else)\n"
-        "- Second line: confidence value 0-100 (ONLY if first line is TRUE or FALSE, omit for INSUFFICIENT INFO)\n"
-        "Do not provide explanations or additional text."
-    )
+RECONSIDER_PROMPT = (
+    "Reconsider your previous answer and provide your final judgment in the same format:\n"
+    "- First line: 'TRUE', 'FALSE', or 'INSUFFICIENT INFO' (nothing else)\n"
+    "- Second line: confidence value 0-100 (ONLY if first line is TRUE or FALSE, omit for INSUFFICIENT INFO)\n"
+    "Do not provide explanations or additional text."
+)
 
 def parse_response(response_text: str, verbose: bool = False) -> tuple:
     """Parse LLM response to extract verdict and confidence.
@@ -136,7 +124,7 @@ def query_llm(statement, client, verbose=False):
 
             # Reconsideration call
             messages.append({"role": "assistant", "content": initial_text})
-            messages.append({"role": "user", "content": create_reconsider_prompt(initial_text)})
+            messages.append({"role": "user", "content": RECONSIDER_PROMPT})
             completion = client.chat.completions.create(
                 model=DEPLOYMENT_NAME,
                 messages=messages,
@@ -146,15 +134,30 @@ def query_llm(statement, client, verbose=False):
             if verbose:
                 print(f"Reconsidered response (prompt {idx}): {reconsider_text}")
             verdict_final, confidence_final = parse_response(reconsider_text, verbose)
-            results[f"verdict-prompt{idx}"] = verdict_final
-            results[f"confidence-prompt{idx}"] = confidence_final
+            results[f"verdict-prompt{idx}-reconsidered"] = verdict_final
+            results[f"confidence-prompt{idx}-reconsidered"] = confidence_final
         except Exception as e:
             if verbose:
                 print(f"Error during LLM query for statement (prompt {idx}): {statement}\n{e}")
-            results[f"verdict-prompt{idx}-initial"] = "INSUFFICIENT INFO"
-            results[f"confidence-prompt{idx}-initial"] = None
-            results[f"verdict-prompt{idx}"] = "INSUFFICIENT INFO"
-            results[f"confidence-prompt{idx}"] = None
+            # Detect Azure content filtering to mark policy violation in output
+            err_str = str(e).lower()
+            policy_violation = (
+                "content_filter" in err_str or
+                "responsibleaipolicyviolation" in err_str or
+                ("error code: 400" in err_str and "policy" in err_str)
+            )
+
+            if policy_violation:
+                results[f"verdict-prompt{idx}-initial"] = "POLICY VIOLATION"
+                results[f"confidence-prompt{idx}-initial"] = None
+                # For reconsidered fields, also mark violation to keep columns consistent
+                results[f"verdict-prompt{idx}-reconsidered"] = "POLICY VIOLATION"
+                results[f"confidence-prompt{idx}-reconsidered"] = None
+            else:
+                results[f"verdict-prompt{idx}-initial"] = "INSUFFICIENT INFO"
+                results[f"confidence-prompt{idx}-initial"] = None
+                results[f"verdict-prompt{idx}-reconsidered"] = "INSUFFICIENT INFO"
+                results[f"confidence-prompt{idx}-reconsidered"] = None
 
     return results
 
@@ -242,9 +245,9 @@ def process_dataframe(df: pd.DataFrame, client, verbose=False) -> pd.DataFrame:
     df_aug = pd.DataFrame(rows)
     result_cols = [
         'verdict-prompt1-initial', 'confidence-prompt1-initial',
-        'verdict-prompt1', 'confidence-prompt1',
+        'verdict-prompt1-reconsidered', 'confidence-prompt1-reconsidered',
         'verdict-prompt2-initial', 'confidence-prompt2-initial',
-        'verdict-prompt2', 'confidence-prompt2',
+        'verdict-prompt2-reconsidered', 'confidence-prompt2-reconsidered',
     ]
     ordered_cols = list(df.columns) + [c for c in result_cols if c in df_aug.columns]
     return df_aug[ordered_cols]

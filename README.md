@@ -1,18 +1,20 @@
 # LLM Fact Checker
 
-Automated fact-checking tool that processes statements from Excel files using locally hosted Large Language Models (LLMs) to determine their veracity and provide confidence scores.
+Automated fact-checking tool that processes statements from Excel files using locally hosted Large Language Models (LLMs) (via Ollama and datapizza-ai) to determine their veracity and provide confidence scores. The main script is `queryLLM.py` for local use. For cloud/remote APIs (e.g., Azure OpenAI), see `queryLLM-cloud.py` (easily adaptable to other APIs).
 
 ## Overview
 
-This tool reads statements from an Excel file, sends each statement to an LLM for analysis, and generates a results file containing the verification status (`TRUE` / `FALSE` / `INSUFFICIENT INFO`) along with confidence scores. The tool runs locally using Ollama, leveraging the `datapizza-ai` libraries for structured interaction. It can be adapted to remote/API providers with minimal changes.
+This tool reads statements from an Excel file, sends each statement to an LLM for analysis, and generates a results file containing the verification status (`TRUE` / `FALSE` / `INSUFFICIENT INFO`) along with confidence scores. The main workflow runs locally using Ollama, leveraging the `datapizza-ai` libraries for structured interaction. For cloud or remote API providers, use the `queryLLM-cloud.py` script (see below).
 
 ## Prerequisites
 
-Before you begin, make sure you have the following installed:
+Before you begin, make sure you have the following installed for local use:
 
 1. **Python 3.7+**: Check your version with `python --version` or `python3 --version`
 2. **Ollama**: Download and install from [https://ollama.com](https://ollama.com)
 3. **Llama 3.2 model (default)**: After installing Ollama, pull the model with `ollama pull llama3.2`
+
+For cloud/remote API use (e.g., Azure OpenAI), see the `queryLLM-cloud.py` script and ensure you have the required API keys and Python packages (see script for details).
 
 ## Installation
 
@@ -48,13 +50,15 @@ ollama serve
 
 ## Usage
 
+
+### Local (Ollama/datapizza-ai)
+
 Basic usage:
 ```bash
 python queryLLM.py --file input.xlsx
 ```
 
 Specify a different local Ollama model (e.g. `llama3.1`) with:
-
 ```bash
 python queryLLM.py --file input.xlsx --model llama3.1
 ```
@@ -62,6 +66,15 @@ python queryLLM.py --file input.xlsx --model llama3.1
 With custom output and verbose mode:
 ```bash
 python queryLLM.py --file input.xlsx --output my_results.xlsx --verbose
+```
+
+### Cloud/Remote API (Azure OpenAI)
+
+To use Azure OpenAI (or adapt to other APIs), use the `queryLLM-cloud.py` script. This version is designed for Azure but can be easily modified for other providers. You will need to set your API key and endpoint in your environment (see script for details).
+
+Example usage:
+```bash
+python queryLLM-cloud.py --file input.xlsx --output my_results.xlsx --verbose
 ```
 
 ### Input Format
@@ -76,13 +89,13 @@ Your Excel file should contain a column named `Statement` with the statements to
 
 ### Output Format
 
-The tool generates an Excel file with the following columns:
+The tool generates an Excel file with the following columns (plus additional columns for each prompt and reconsideration step):
 
-| statement | verdict | confidence |
-|-----------|---------|------------|
-| The Earth is flat | FALSE | 95 |
-| Water boils at 100°C at sea level | TRUE | 98 |
-| ... | INSUFFICIENT INFO | (blank) |
+| statement | verdict-prompt1-initial | confidence-prompt1-initial | verdict-prompt1-reconsidered | confidence-prompt1-reconsidered | verdict-prompt2-initial | confidence-prompt2-initial | verdict-prompt2-reconsidered | confidence-prompt2-reconsidered |
+|-----------|------------------------|----------------------------|------------------------------|----------------------------------|------------------------|----------------------------|------------------------------|----------------------------------|
+| The Earth is flat | FALSE | 95 | FALSE | 95 | FALSE | 95 | FALSE | 95 |
+| Water boils at 100°C at sea level | TRUE | 98 | TRUE | 98 | TRUE | 98 | TRUE | 98 |
+| ... | INSUFFICIENT INFO | (blank) | INSUFFICIENT INFO | (blank) | INSUFFICIENT INFO | (blank) | INSUFFICIENT INFO | (blank) |
 
 Rules:
 - `verdict` is one of `TRUE`, `FALSE`, `INSUFFICIENT INFO`.
@@ -91,15 +104,21 @@ Rules:
 
 ## Command Line Arguments
 
+### queryLLM.py (local)
 - `--file` (required): Path to input Excel file (`.xlsx`) containing a `Statement` column
 - `--output` (optional): Path for output file (default: `output.xlsx`)
 - `--verbose` (optional): Enable detailed logging
 - `--model` (optional): Name of the Ollama model to use (default: `llama3.2`)
 
+### queryLLM-cloud.py (Azure/cloud)
+- `--file` (required): Path to input Excel file (`.xlsx`) containing a `Statement` column
+- `--output` (optional): Path for output file (default: `output.xlsx`)
+- `--verbose` (optional): Enable detailed logging
+
 ## Requirements
 
 - Python 3.7+
-- Ollama (running locally)
+- Ollama (running locally, for local use)
 - pandas
 - openpyxl
 - tqdm
@@ -113,7 +132,11 @@ All Python requirements are listed in `requirements.txt` and can be installed wi
 pip install -r requirements.txt
 ```
 
+For cloud/remote API use, see the top of `queryLLM-cloud.py` for any additional requirements (e.g., `openai`, `python-dotenv`).
+
 ## Notes
+
 
 - The model you want to use must be downloaded first using `ollama pull <model-name>` (e.g., `ollama pull llama3.2`).
 - Ensure Ollama is serving (`ollama serve`) before running the script.
+- For cloud/remote API use, set your API keys and endpoints as required (see `queryLLM-cloud.py`).

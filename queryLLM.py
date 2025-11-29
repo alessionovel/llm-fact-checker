@@ -4,129 +4,143 @@ import os
 import sys
 from tqdm import tqdm
 from datapizza.clients.openai_like import OpenAILikeClient
-from pydantic import BaseModel, field_validator
-from typing import Literal
-
-class Truth(BaseModel):
-    """Structured response model for LLM fact-checking output.
-
-    Attributes:
-        verdict: One of TRUE, FALSE, INSUFFICIENT INFO
-        confidence: Integer in [0,100] if verdict is TRUE or FALSE, else None
-    """
-    verdict: Literal["TRUE", "FALSE", "INSUFFICIENT INFO"]
-    confidence: int | None
-    
-    @field_validator("verdict", mode="before")
-    def normalize_verdict(cls, v):  # noqa: D401
-        # Normalize case and common variants
-        if not isinstance(v, str):
-            raise ValueError("Verdict must be a string")
-        vv = v.strip().upper()
-        if vv in {"TRUE", "FALSE", "INSUFFICIENT INFO"}:
-            return vv
-        # Allow some loose variants
-        if vv in {"INSUFFICIENT", "UNKNOWN", "NOT ENOUGH INFO"}:
-            return "INSUFFICIENT INFO"
-        raise ValueError(f"Invalid verdict value: {v}")
-
-    @field_validator("confidence")
-    def validate_confidence(cls, v, info):  # noqa: D401
-        verdict = info.data.get("verdict")
-        if verdict == "INSUFFICIENT INFO":
-            return None
-        if v is None:
-            raise ValueError("Confidence required for TRUE/FALSE verdicts")
-        if not isinstance(v, (int, float)):
-            raise ValueError("Confidence must be a number")
-        # Convert float to int if needed
-        v_int = int(v) if isinstance(v, float) else v
-        if not (0 <= v_int <= 100):
-            raise ValueError("Confidence must be between 0 and 100")
-        return v_int
-    
 
 def create_prompts(statement: str) -> list[str]:
-    """Return four differently worded prompts for fact-checking a statement.
+    """Return two base prompts for fact-checking a statement.
 
-    Args:
-        statement: The statement to embed into each prompt.
+    Prompt 1: Neutral factual assessment.
+    Prompt 2: Adds classical logic consistency requirement.
 
-    Returns:
-        List of four prompt strings.
+    Each will be used twice: initial and reconsideration steps.
     """
     return [
         (
             "You are evaluating short statements one at a time.\n"
-            "Respond with exactly one of: True, False, or Insufficient info.\n"
+            "Respond in exactly this format:\n"
+            "- First line: 'TRUE', 'FALSE', or 'INSUFFICIENT INFO' (nothing else)\n"
+            "- Second line: confidence value 0-100 (ONLY if first line is TRUE or FALSE, omit for INSUFFICIENT INFO)\n"
             "Rely on standard definitions and widely accepted facts only.\n"
-            "After your label, include Confidence: <0–100> on a new line.\n"
-            "Do not provide explanations.\n"
+            "Do not provide explanations or additional text.\n"
             f"Statement: {statement} "
         ),
         (
             "You are evaluating short statements one at a time.\n"
-            "Respond with exactly one of: True, False, or Insufficient info.\n"
-            "Rely on standard definitions and widely accepted facts only. Also use classical logical: If A is true, not-A must be false and vice versa.\n"
-            "After your label, include Confidence: <0–100> on a new line.\n"
-            "Do not provide explanations.\n"
+            "Respond in exactly this format:\n"
+            "- First line: 'TRUE', 'FALSE', or 'INSUFFICIENT INFO' (nothing else)\n"
+            "- Second line: confidence value 0-100 (ONLY if first line is TRUE or FALSE, omit for INSUFFICIENT INFO)\n"
+            "Rely on standard definitions and widely accepted facts only. Also use classical logic: If A is true, not-A must be false and vice versa.\n"
+            "Do not provide explanations or additional text.\n"
             f"Statement: {statement} "
-        ),
-        (
-            "You are evaluating short statements one at a time.\n"
-            "Respond with exactly one of: True, False, or Insufficient info.\n"
-            "Rely on standard definitions and widely accepted facts only.\n"
-            "After your label, include Confidence: <0–100> on a new line.\n"
-            "Do not provide explanations.\n"
-            "First give an output for this. After that, reconsider and make a new best judgment, accompanied by confidence <0-100>.\n"
-            f"Statement: {statement}"
-        ),
-        (
-            "You are evaluating short statements one at a time.\n"
-            "Respond with exactly one of: True, False, or Insufficient info.\n"
-            "Rely on standard definitions and widely accepted facts only. Also use classical logical: If A is true, not-A must be false and vice versa.\n"
-            "After your label, include Confidence: <0–100> on a new line.\n"
-            "Do not provide explanations.\n"
-            "First give an output for this. After that, reconsider and make a new best judgment, accompanied by confidence <0-100>.\n"
-            f"Statement: {statement}"
         ),
     ]
 
-def query_llm_ollama(statement, client, verbose=False):
-    """
-    Sends a statement to the LLM using four prompt variants and collects results.
+RECONSIDER_PROMPT = (
+    "Reconsider your previous answer and provide your final judgment in the same format:\n"
+    "- First line: 'TRUE', 'FALSE', or 'INSUFFICIENT INFO' (nothing else)\n"
+    "- Second line: confidence value 0-100 (ONLY if first line is TRUE or FALSE, omit for INSUFFICIENT INFO)\n"
+    "Do not provide explanations or additional text."
+)
 
+def parse_response(response_text: str, verbose: bool = False) -> tuple:
+    """Parse LLM response to extract verdict and confidence.
+    
     Args:
-        statement (str): The statement to analyze
-        client (OpenAILikeClient): The LLM client instance
-        verbose (bool): If True, print the LLM responses
-
+        response_text: The raw response from the LLM
+        verbose: If True, print parsing details
+        
     Returns:
-        dict: Keys for each prompt variant: 'verdict-prompt1'..'verdict-prompt4' and
-              'confidence-prompt1'..'confidence-prompt4'.
+        Tuple of (verdict, confidence)
     """
+    import re
+    
+    lines = [line.strip() for line in response_text.strip().split('\n') if line.strip()]
+    verdict = None
+    confidence = None
+    
+    if len(lines) >= 1:
+        first_line = lines[0].upper()
+        
+        # Check first line for verdict
+        if first_line == 'TRUE':
+            verdict = "TRUE"
+        elif first_line == 'FALSE':
+            verdict = "FALSE"
+        elif 'INSUFFICIENT' in first_line:
+            verdict = "INSUFFICIENT INFO"
+        # Fallback: check if verdict is part of the line
+        elif 'TRUE' in first_line and 'FALSE' not in first_line:
+            verdict = "TRUE"
+        elif 'FALSE' in first_line:
+            verdict = "FALSE"
+        
+        # Extract confidence from second line if present and verdict is TRUE or FALSE
+        if len(lines) >= 2 and verdict in ["TRUE", "FALSE"]:
+            # Second line should be just the number, but handle "Confidence: X" format too
+            confidence_line = lines[1]
+            numbers = re.findall(r'\d+', confidence_line)
+            if numbers:
+                confidence = int(numbers[0])
+    
+    return verdict, confidence
 
+def query_llm(statement, client, verbose=False):
+    """Query LLM with two base prompts, each with initial + reconsideration steps.
+
+    Returns a dict containing initial and reconsidered verdict/confidence for prompts 1 and 2.
+    """
     prompts = create_prompts(statement)
-
     results = {}
+
     for idx, prompt in enumerate(prompts, start=1):
-        key_v = f"verdict-prompt{idx}"
-        key_c = f"confidence-prompt{idx}"
         try:
-            response = client.structured_response(input=prompt, output_cls=Truth)
+            # Initial call
+            initial_response = client.invoke(prompt)
+            # Extract text content from ClientResponse
+            if hasattr(initial_response, 'content') and initial_response.content:
+                initial_text = initial_response.content[0].content if hasattr(initial_response.content[0], 'content') else str(initial_response.content[0])
+            else:
+                initial_text = str(initial_response)
             if verbose:
-                print(f"Raw structured response (prompt {idx}): {response}")
-            data_list = getattr(response, "structured_data", [])
-            if not data_list:
-                raise ValueError("No structured data returned by LLM")
-            truth: Truth = data_list[0]
-            results[key_v] = truth.verdict
-            results[key_c] = truth.confidence
+                print(f"Initial response (prompt {idx}): {initial_text}")
+            verdict_initial, confidence_initial = parse_response(initial_text, verbose)
+            results[f"verdict-prompt{idx}-initial"] = verdict_initial
+            results[f"confidence-prompt{idx}-initial"] = confidence_initial
+
+            # Reconsideration call
+            reconsider_prompt = f"{prompt}\n\nPrevious response: {initial_text}\n\n{RECONSIDER_PROMPT}"
+            reconsider_response = client.invoke(reconsider_prompt)
+            # Extract text content from ClientResponse
+            if hasattr(reconsider_response, 'content') and reconsider_response.content:
+                reconsider_text = reconsider_response.content[0].content if hasattr(reconsider_response.content[0], 'content') else str(reconsider_response.content[0])
+            else:
+                reconsider_text = str(reconsider_response)
+            if verbose:
+                print(f"Reconsidered response (prompt {idx}): {reconsider_text}")
+            verdict_final, confidence_final = parse_response(reconsider_text, verbose)
+            results[f"verdict-prompt{idx}-reconsidered"] = verdict_final
+            results[f"confidence-prompt{idx}-reconsidered"] = confidence_final
         except Exception as e:
             if verbose:
                 print(f"Error during LLM query for statement (prompt {idx}): {statement}\n{e}")
-            results[key_v] = "INSUFFICIENT INFO"
-            results[key_c] = None
+            # Detect Azure content filtering to mark policy violation in output
+            err_str = str(e).lower()
+            policy_violation = (
+                "content_filter" in err_str or
+                "responsibleaipolicyviolation" in err_str or
+                ("error code: 400" in err_str and "policy" in err_str)
+            )
+
+            if policy_violation:
+                results[f"verdict-prompt{idx}-initial"] = "POLICY VIOLATION"
+                results[f"confidence-prompt{idx}-initial"] = None
+                # For reconsidered fields, also mark violation to keep columns consistent
+                results[f"verdict-prompt{idx}-reconsidered"] = "POLICY VIOLATION"
+                results[f"confidence-prompt{idx}-reconsidered"] = None
+            else:
+                results[f"verdict-prompt{idx}-initial"] = "INSUFFICIENT INFO"
+                results[f"confidence-prompt{idx}-initial"] = None
+                results[f"verdict-prompt{idx}-reconsidered"] = "INSUFFICIENT INFO"
+                results[f"confidence-prompt{idx}-reconsidered"] = None
 
     return results
 
@@ -136,7 +150,7 @@ def process_statements(statements, client, verbose=False):
     
     Args:
         statements (list): List of statements to process
-        client (OpenAILikeClient): The LLM client instance
+        client (OpenAI): The LLM client instance
         verbose (bool): If True, print detailed information
     
     Returns:
@@ -145,7 +159,7 @@ def process_statements(statements, client, verbose=False):
     results = []
     
     for statement in tqdm(statements, desc="Processing statements", unit="statement"):
-        llm_results = query_llm_ollama(statement, client, verbose)
+        llm_results = query_llm(statement, client, verbose)
         row = {'statement': statement}
         row.update(llm_results)
         results.append(row)
@@ -206,27 +220,27 @@ def process_dataframe(df: pd.DataFrame, client, verbose=False) -> pd.DataFrame:
     rows = []
     for _, row in tqdm(df.iterrows(), total=len(df), desc="Processing statements", unit="statement"):
         statement = str(row['statement']) if pd.notna(row['statement']) else ''
-        llm_results = query_llm_ollama(statement, client, verbose)
+        llm_results = query_llm(statement, client, verbose)
         base = row.to_dict()
         base.update(llm_results)
         rows.append(base)
 
     df_aug = pd.DataFrame(rows)
     result_cols = [
-        'verdict-prompt1', 'confidence-prompt1',
-        'verdict-prompt2', 'confidence-prompt2',
-        'verdict-prompt3', 'confidence-prompt3',
-        'verdict-prompt4', 'confidence-prompt4',
+        'verdict-prompt1-initial', 'confidence-prompt1-initial',
+        'verdict-prompt1-reconsidered', 'confidence-prompt1-reconsidered',
+        'verdict-prompt2-initial', 'confidence-prompt2-initial',
+        'verdict-prompt2-reconsidered', 'confidence-prompt2-reconsidered',
     ]
     ordered_cols = list(df.columns) + [c for c in result_cols if c in df_aug.columns]
     return df_aug[ordered_cols]
 
 def create_client(model_name):
     """
-    Creates an OpenAI-like client configured for Ollama.
+    Creates an OpenAILikeClient configured for local Ollama.
     
     Args:
-        model_name (str): Name of the Ollama model to use (e.g., "llama3.2")
+        model_name (str): Name of the Ollama model to use
     
     Returns:
         OpenAILikeClient: Configured client instance
@@ -234,9 +248,7 @@ def create_client(model_name):
     client = OpenAILikeClient(
         api_key="",  # Ollama doesn't require an API key
         model=model_name,
-        system_prompt=(
-            """You are a rigorous Fact-Checking Analyst. You function deterministically: identical inputs must always yield identical reasoning paths and conclusions."""
-        ),
+        system_prompt="You are a rigorous Fact-Checking Analyst. You function deterministically: identical inputs must always yield identical reasoning paths and conclusions.",
         base_url="http://localhost:11434/v1",  # Default Ollama API endpoint
         temperature=0.0,
     )
@@ -247,11 +259,11 @@ def test_client_connection(client, verbose=False):
     Tests if the Ollama client is working by sending a simple test query.
     
     Args:
-        client (OpenAILikeClient): The LLM client instance to test
+        client (OpenAILikeClient): The Ollama client instance to test
         verbose (bool): If True, print detailed information
     
     Raises:
-        ConnectionError: If Ollama is not running or the connection fails
+        ConnectionError: If Ollama is not reachable or the connection fails
         ValueError: If the model is not available
     """
     if verbose:
@@ -259,8 +271,7 @@ def test_client_connection(client, verbose=False):
     
     try:
         # Send a simple test query
-        test_prompt = "Respond with the word 'ok' only."
-        response = client.structured_response(input=test_prompt, output_cls=Truth)
+        response = client.invoke("Respond with the word 'ok' only.")
         
         if verbose:
             print("✓ Connection to Ollama successful!")
@@ -271,12 +282,12 @@ def test_client_connection(client, verbose=False):
         # Check for common connection errors
         if "connection" in error_msg or "refused" in error_msg or "unreachable" in error_msg:
             raise ConnectionError(
-                f"Cannot connect to Ollama. Please ensure Ollama is running with 'ollama serve'.\n"
+                f"Cannot connect to Ollama. Please check that Ollama is running on localhost:11434.\n"
                 f"Error details: {e}"
             )
         elif "model" in error_msg or "not found" in error_msg:
             raise ValueError(
-                f"Model '{client.model}' not found. Please download it first with 'ollama pull {client.model}'.\n"
+                f"Model not found. Please verify the model is pulled in Ollama.\n"
                 f"Error details: {e}"
             )
         else:
@@ -324,7 +335,7 @@ def main():
     # Parse the arguments
     args = parser.parse_args()
 
-    # Create LLM client with specified model
+    # Create Azure OpenAI client
     client = create_client(args.model_name)
     
     # Test client connection before processing
