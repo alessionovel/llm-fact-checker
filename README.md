@@ -106,6 +106,27 @@ Rules:
 - `confidence` is an integer in `[0,100]` only when verdict is `TRUE` or `FALSE`.
 - When verdict is `INSUFFICIENT INFO`, confidence is left empty (null).
 
+## Analysis Folder (R Reports)
+
+The `analysis/` folder contains `run_analysis.R`, which turns your CSV results into summary reports for accuracy, consistency, and confidence/correlation.
+
+### Prerequisites
+- Install R (e.g., on macOS: `brew install r` or from https://cloud.r-project.org/) before running the script.
+- Store your model outputs as CSV files inside `analysis/` (e.g., `results-llama3.2.csv`, `results-gpt4o.csv`). The script will also accept `.rds` if you prefer.
+
+### How to run
+From the repo root:
+```bash
+Rscript analysis/run_analysis.R analysis/results-llama3.2.csv
+```
+If you omit the argument, the script looks for `results.csv`, `results.rds`, or `example.csv` next to itself inside `analysis/`.
+
+### What the script does
+- Cleans column names and normalizes verdicts/ground truth values.
+- Computes accuracy stats and McNemar tests; writes `task1-accuracy.csv` under `report-<model-name>/`.
+- Checks triplet consistency (affirmation vs. negation/antonym); writes `task2-consistency.csv` under the same report folder.
+- Aggregates confidence, confidence-by-type, and confidence-vs-accuracy correlations; writes `task3-confidence.csv`.
+
 ## Command Line Arguments
 
 ### queryLLM.py (local)

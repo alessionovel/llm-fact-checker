@@ -1,0 +1,22 @@
+--- OVERALL AVERAGE CONFIDENCE ---
+"Scenario","Avg_Confidence"
+"Prompt 1 (Initial)","97.05"
+"Prompt 1 (Reconsidered)","96.94"
+"Prompt 2 (Initial)","98.07"
+"Prompt 2 (Reconsidered)","97.96"
+
+
+--- CONFIDENCE BY STATEMENT TYPE ---
+"Scenario","Avg_Conf_Affirmation","Avg_Conf_antonym","Avg_Conf_Antonym","Avg_Conf_negation","Avg_Conf_Negation"
+"prompt1_initial","96.79","95.00","97.28","95.00","97.12"
+"prompt2_initial","97.31","95.00","98.09","100.00","98.74"
+"prompt1_reconsidered","96.63","95.00","97.10","95.00","97.14"
+"prompt2_reconsidered","97.05","95.00","98.07","100.00","98.77"
+
+
+--- CORRELATION: CONFIDENCE VS ACCURACY ---
+"Scenario","Correlation_Coef","Valid_Data_Points"
+"prompt1_initial","0.1295",371
+"prompt2_initial","0.1787",360
+"prompt1_reconsidered","0.1978",376
+"prompt2_reconsidered","0.1327",368

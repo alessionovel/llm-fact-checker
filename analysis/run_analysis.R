@@ -1,0 +1,428 @@
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+
+# Robust CSV reader that stitches lines when stray newlines break rows
+count_csv_fields <- function(line) {
+  parts <- strsplit(line, ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", perl = TRUE)[[1]]
+  length(parts)
+}
+
+read_csv_repaired <- function(path) {
+  raw_lines <- readLines(path, warn = FALSE)
+  if (!length(raw_lines)) stop("File is empty: ", path)
+  expected_fields <- count_csv_fields(raw_lines[1])
+  if (expected_fields < 2) stop("Header appears invalid in: ", path)
+  rows <- character(0)
+  buffer <- character(0)
+  fixed_rows <- 0L
+
+  flush_buffer <- function() {
+    if (!length(buffer)) return()
+    if (length(buffer) > 1) fixed_rows <<- fixed_rows + 1L
+    rows <<- c(rows, paste(buffer, collapse = "\n"))
+    buffer <<- character(0)
+  }
+
+  for (ln in raw_lines[-1]) {
+    buffer <- c(buffer, ln)
+    row_text <- paste(buffer, collapse = "\n")
+    field_count <- count_csv_fields(row_text)
+    if (field_count >= expected_fields) flush_buffer()
+  }
+  flush_buffer()
+
+  repaired_text <- paste(c(raw_lines[1], rows), collapse = "\n")
+  con <- textConnection(repaired_text)
+  on.exit(close(con), add = TRUE)
+  df <- read.csv(con, stringsAsFactors = FALSE)
+  if (fixed_rows > 0) message("Repaired ", fixed_rows, " broken CSV row(s) caused by stray newlines.")
+  return(df)
+}
+
+# ==========================================
+# 1. DATA LOADING & PREPROCESSING (GLOBAL)
+# ==========================================
+{
+  args <- commandArgs(trailingOnly = TRUE)
+  script_dir <- tryCatch(dirname(normalizePath(sys.frame(1)$ofile)), error = function(e) getwd())
+  candidate_files <- if (length(args) > 0) normalizePath(args, mustWork = FALSE) else file.path(script_dir, c("results.rds", "results.csv", "example.csv"))
+  loaded <- FALSE
+  input_name <- "results" # Default fallback
+  
+  for (f in candidate_files) {
+    if (!file.exists(f)) next
+    input_name <- tools::file_path_sans_ext(basename(f))
+    
+    if (grepl("\\.rds$", f, ignore.case = TRUE)) {
+      results <- readRDS(f)
+    } else {
+      results <- read_csv_repaired(f)
+    }
+    loaded <- TRUE
+    message("Loaded data from: ", f)
+    break
+  }
+  if (!loaded) stop("No data found. Please place results.csv or results.rds next to this script.")
+}
+
+# Standardize Column Names
+names(results) <- gsub("\\.", "_", names(results))
+names(results) <- gsub("-", "_", names(results)) 
+names(results) <- tolower(names(results)) 
+
+# Create Output Directory (map results-xxx input to report-xxx output)
+base_name <- sub("^results[-_]", "", input_name)
+if (base_name == "") base_name <- input_name
+output_dir <- paste0("report-", base_name)
+if (!dir.exists(output_dir)) dir.create(output_dir)
+
+# Helper: Normalize Truth/Verdict to Strict TRUE/FALSE
+normalize_bool <- function(vec) {
+  v <- toupper(trimws(as.character(vec)))
+  v[v %in% c("YES", "TRUE", "1")] <- "TRUE"
+  v[v %in% c("NO", "FALSE", "0")] <- "FALSE"
+  return(v)
+}
+
+# Normalize Ground Truth immediately (used in Accuracy)
+if("ground_truth" %in% names(results)) {
+  results$ground_truth <- normalize_bool(results$ground_truth)
+} else {
+  warning("Column 'ground_truth' not found. Accuracy metrics will fail.")
+}
+
+# ==========================================
+# 2. ACCURACY ANALYSIS (Binary correctness)
+# ==========================================
+message("--- Running Accuracy Analysis ---")
+
+# Define columns to check
+verdict_cols <- c(
+  "verdict_prompt1_initial", 
+  "verdict_prompt2_initial", 
+  "verdict_prompt1_reconsidered", 
+  "verdict_prompt2_reconsidered"
+)
+
+# Check accuracy (Binary 1/0)
+check_accuracy <- function(truth, verdict) {
+  v_norm <- normalize_bool(verdict)
+  
+  # Logic:
+  # 1. If verdict is "INSUFFICIENT INFO", return NA (Abstained)
+  # 2. Else, if verdict matches truth, return 1 (Correct)
+  # 3. Else, return 0 (Incorrect)
+  
+  return(ifelse(v_norm == "INSUFFICIENT INFO", NA, 
+         ifelse(truth == v_norm, 1, 0)))
+}
+
+# Generate Accuracy Columns
+results$acc_prompt1_initial <- check_accuracy(results$ground_truth, results$verdict_prompt1_initial)
+results$acc_prompt2_initial <- check_accuracy(results$ground_truth, results$verdict_prompt2_initial)
+results$acc_prompt1_reconsidered <- check_accuracy(results$ground_truth, results$verdict_prompt1_reconsidered)
+results$acc_prompt2_reconsidered <- check_accuracy(results$ground_truth, results$verdict_prompt2_reconsidered)
+
+# -- Report Generation: Stats --
+calc_acc_stats <- function(col_data, label) {
+  # Count abstentions (NAs)
+  abstained_count <- sum(is.na(col_data))
+  
+  # Calculate accuracy only on valid answers (removing NAs)
+  mean_acc <- mean(col_data, na.rm = TRUE)
+  correct_count <- sum(col_data == 1, na.rm = TRUE)
+  
+  # Total valid attempts (excluding abstentions)
+  valid_total <- sum(!is.na(col_data))
+  
+  return(data.frame(
+    Scenario = label,
+    Accuracy_Pct = sprintf("%.2f%%", mean_acc * 100),
+    Correct = correct_count,
+    Abstained = abstained_count,     # <--- New Column
+    Total_Attempted = valid_total,   # <--- Renamed for clarity
+    stringsAsFactors = FALSE
+  ))
+}
+
+acc_summary <- rbind(
+  calc_acc_stats(results$acc_prompt1_initial,      "Prompt 1 (Initial)"),
+  calc_acc_stats(results$acc_prompt1_reconsidered, "Prompt 1 (Reconsidered)"),
+  calc_acc_stats(results$acc_prompt2_initial,      "Prompt 2 (Initial)"),
+  calc_acc_stats(results$acc_prompt2_reconsidered, "Prompt 2 (Reconsidered)")
+)
+
+# Pooled stats
+pool_p1 <- c(results$acc_prompt1_initial, results$acc_prompt1_reconsidered)
+pool_p2 <- c(results$acc_prompt2_initial, results$acc_prompt2_reconsidered)
+
+acc_summary <- rbind(acc_summary,
+  data.frame(Scenario = "---", Accuracy_Pct="", Correct=NA, Abstained=NA, Total_Attempted=NA),
+  calc_acc_stats(pool_p1, "Prompt 1 (Total Pooled)"),
+  calc_acc_stats(pool_p2, "Prompt 2 (Total Pooled)")
+)
+
+# -- Report Generation: McNemar --
+run_mcnemar <- function(vec1, vec2, label) {
+  tbl <- table(factor(vec1, levels=c(0,1)), factor(vec2, levels=c(0,1)))
+  # Handle cases with zero variance to avoid crash
+  if(all(dim(tbl) == c(2,2))) {
+    test <- mcnemar.test(tbl)
+    p_val <- test$p.value
+    chi <- test$statistic
+    df <- test$parameter
+  } else {
+    p_val <- NA; chi <- NA; df <- NA
+  }
+  
+  diff_pct <- (mean(vec1, na.rm=TRUE) - mean(vec2, na.rm=TRUE)) * 100
+  
+  return(data.frame(
+    Comparison = label,
+    Diff_Pct = sprintf("%+.2f%%", diff_pct),
+    Chi_Sq = ifelse(is.na(chi), "NA", sprintf("%.3f", chi)),
+    P_Value = ifelse(is.na(p_val), "NA", sprintf("%.4g", p_val)),
+    Sig = ifelse(!is.na(p_val) & p_val < 0.05, "Yes (*)", "No"),
+    stringsAsFactors = FALSE
+  ))
+}
+
+mcnemar_table <- rbind(
+  run_mcnemar(results$acc_prompt1_initial, results$acc_prompt2_initial, "P1 Initial vs P2 Initial"),
+  run_mcnemar(results$acc_prompt1_reconsidered, results$acc_prompt2_reconsidered, "P1 Recons. vs P2 Recons."),
+  run_mcnemar(results$acc_prompt1_reconsidered, results$acc_prompt1_initial, "P1 Recons. vs P1 Initial"),
+  run_mcnemar(results$acc_prompt2_reconsidered, results$acc_prompt2_initial, "P2 Recons. vs P2 Initial")
+)
+
+# Write Accuracy Report
+acc_file <- file.path(output_dir, "task1-accuracy.csv")
+write.table(acc_summary, file = acc_file, sep = ",", row.names = FALSE, col.names = TRUE, na = "")
+cat("\n\nSTATISTICAL SIGNIFICANCE (McNemar Tests)\n", file = acc_file, append = TRUE)
+suppressWarnings(write.table(mcnemar_table, file = acc_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+message("Saved accuracy report to: ", acc_file)
+
+# ==========================================
+# 3. CONSISTENCY ANALYSIS (Triplet logic checks)
+# ==========================================
+message("--- Running Consistency Analysis ---")
+
+# Check triplet structure
+if(nrow(results) %% 3 != 0) {
+  warning("Data length not divisible by 3. Consistency grouping might be incorrect.")
+}
+
+# Create Triplet ID
+results$triplet_id <- ceiling(seq_len(nrow(results)) / 3)
+
+# Subset for reshaping
+cols_to_keep <- c("triplet_id", "type", verdict_cols)
+df_subset <- results[, cols_to_keep]
+df_subset$type <- trimws(tolower(df_subset$type)) 
+
+# Reshape to Wide (1 row per triplet)
+df_wide <- reshape(
+  df_subset,
+  idvar = "triplet_id",
+  timevar = "type",
+  direction = "wide",
+  sep = "_"
+)
+
+# Function to check logical consistency
+check_pair_consistency <- function(main_verdict, comp_verdict) {
+  v1 <- normalize_bool(main_verdict)
+  v2 <- normalize_bool(comp_verdict)
+  
+  # Logic: (Aff=T AND Comp=F) OR (Aff=F AND Comp=T) -> 1 (Consistent)
+  consistent <- ifelse(
+    (v1 == "TRUE" & v2 == "FALSE") | (v1 == "FALSE" & v2 == "TRUE"),
+    1, 
+    0
+  )
+  consistent[is.na(consistent)] <- 0
+  return(consistent)
+}
+
+metrics_df <- data.frame(triplet_id = df_wide$triplet_id)
+
+# Loop through verdict columns to calculate consistency metrics
+for (v_col in verdict_cols) {
+  col_aff <- paste0(v_col, "_affirmation")
+  col_neg <- paste0(v_col, "_negation")
+  col_ant <- paste0(v_col, "_antonym")
+  
+  # Negation Consistency
+  metric_name_neg <- paste0("consist_neg_", v_col)
+  metrics_df[[metric_name_neg]] <- check_pair_consistency(df_wide[[col_aff]], df_wide[[col_neg]])
+  
+  # Antonym Consistency
+  metric_name_ant <- paste0("consist_ant_", v_col)
+  metrics_df[[metric_name_ant]] <- check_pair_consistency(df_wide[[col_aff]], df_wide[[col_ant]])
+  
+  # Full Consistency (Must satisfy both)
+  metric_name_full <- paste0("consist_full_", v_col)
+  metrics_df[[metric_name_full]] <- ifelse(
+    metrics_df[[metric_name_neg]] == 1 & metrics_df[[metric_name_ant]] == 1,
+    1, 
+    0
+  )
+}
+
+# -- Report Generation: Consistency --
+calc_consist_stats <- function(col_data, label) {
+  mean_val <- mean(col_data, na.rm = TRUE)
+  count_correct <- sum(col_data == 1, na.rm = TRUE)
+  total <- length(col_data)
+  
+  return(data.frame(
+    Scenario = label,
+    Consistency_Pct = sprintf("%.2f%%", mean_val * 100),
+    Consistent_Triplets = count_correct,
+    Total_Triplets = total,
+    stringsAsFactors = FALSE
+  ))
+}
+
+# Generate 3 summary tables
+summary_full <- rbind(
+  calc_consist_stats(metrics_df$consist_full_verdict_prompt1_initial, "Prompt 1 (Initial)"),
+  calc_consist_stats(metrics_df$consist_full_verdict_prompt1_reconsidered, "Prompt 1 (Reconsidered)"),
+  calc_consist_stats(metrics_df$consist_full_verdict_prompt2_initial, "Prompt 2 (Initial)"),
+  calc_consist_stats(metrics_df$consist_full_verdict_prompt2_reconsidered, "Prompt 2 (Reconsidered)")
+)
+
+summary_neg <- rbind(
+  calc_consist_stats(metrics_df$consist_neg_verdict_prompt1_initial, "Prompt 1 (Initial)"),
+  calc_consist_stats(metrics_df$consist_neg_verdict_prompt1_reconsidered, "Prompt 1 (Reconsidered)"),
+  calc_consist_stats(metrics_df$consist_neg_verdict_prompt2_initial, "Prompt 2 (Initial)"),
+  calc_consist_stats(metrics_df$consist_neg_verdict_prompt2_reconsidered, "Prompt 2 (Reconsidered)")
+)
+
+summary_ant <- rbind(
+  calc_consist_stats(metrics_df$consist_ant_verdict_prompt1_initial, "Prompt 1 (Initial)"), 
+  calc_consist_stats(metrics_df$consist_ant_verdict_prompt1_reconsidered, "Prompt 1 (Reconsidered)"),
+  calc_consist_stats(metrics_df$consist_ant_verdict_prompt2_initial, "Prompt 2 (Initial)"),
+  calc_consist_stats(metrics_df$consist_ant_verdict_prompt2_reconsidered, "Prompt 2 (Reconsidered)")
+)
+
+# Write Consistency Report
+consist_file <- file.path(output_dir, "task2-consistency.csv")
+
+write.table("--- FULL INTERNAL CONSISTENCY (Aff vs Neg AND Aff vs Ant) ---", file = consist_file, sep = ",", row.names = FALSE, col.names = FALSE, append = FALSE)
+
+suppressWarnings(write.table(summary_full, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+
+cat("\n\n--- NEGATION CONSISTENCY (Aff vs Neg only) ---\n", file = consist_file, append = TRUE)
+suppressWarnings(write.table(summary_neg, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+
+cat("\n\n--- ANTONYM CONSISTENCY (Aff vs Ant only) ---\n", file = consist_file, append = TRUE)
+suppressWarnings(write.table(summary_ant, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+
+message("Saved consistency report to: ", consist_file)
+
+# ==========================================
+# 4. CONFIDENCE & CORRELATION ANALYSIS
+# ==========================================
+message("--- Running Confidence & Correlation Analysis ---")
+
+# Define Confidence Columns (mapped from input standardizing: confidence-prompt1-initial -> confidence_prompt1_initial)
+conf_cols <- c(
+  "confidence_prompt1_initial",
+  "confidence_prompt2_initial",
+  "confidence_prompt1_reconsidered",
+  "confidence_prompt2_reconsidered"
+)
+
+# Ensure confidence columns are numeric
+# (Empty strings from 'INSUFFICIENT INFO' become NA)
+for(col in conf_cols) {
+  if(col %in% names(results)) {
+    results[[col]] <- suppressWarnings(as.numeric(as.character(results[[col]])))
+  } else {
+    warning(paste("Column not found:", col))
+    results[[col]] <- NA
+  }
+}
+
+# --- 4a. Overall Average Confidence ---
+calc_avg_conf <- function(col_name, label) {
+  mean_val <- mean(results[[col_name]], na.rm = TRUE)
+  return(data.frame(Scenario = label, Avg_Confidence = sprintf("%.2f", mean_val)))
+}
+
+overall_conf <- rbind(
+  calc_avg_conf("confidence_prompt1_initial", "Prompt 1 (Initial)"),
+  calc_avg_conf("confidence_prompt1_reconsidered", "Prompt 1 (Reconsidered)"),
+  calc_avg_conf("confidence_prompt2_initial", "Prompt 2 (Initial)"),
+  calc_avg_conf("confidence_prompt2_reconsidered", "Prompt 2 (Reconsidered)")
+)
+
+# --- 4b. Confidence by Statement Type (Affirmation, Negation, Antonym) ---
+conf_by_type <- data.frame()
+
+for(col in conf_cols) {
+  # Group by 'type' (normalized to lowercase in Step 1)
+  agg <- aggregate(
+    list(Avg_Conf = results[[col]]), 
+    by = list(Type = results$type), 
+    FUN = mean, 
+    na.rm=TRUE
+  )
+  
+  agg$Scenario <- col
+  conf_by_type <- rbind(conf_by_type, agg)
+}
+
+# Clean Scenario names
+conf_by_type$Scenario <- gsub("confidence_", "", conf_by_type$Scenario)
+conf_by_type$Avg_Conf <- sprintf("%.2f", conf_by_type$Avg_Conf)
+
+# Reshape to wide format for easier reading (Rows=Scenario, Cols=Types)
+conf_by_type_wide <- reshape(conf_by_type, idvar="Scenario", timevar="Type", direction="wide", sep="_")
+
+# --- 4c. Correlation (Confidence vs Accuracy) ---
+# Correlation requires the accuracy columns computed in Step 2.
+# Using Point-Biserial Correlation (which is equivalent to Pearson when one var is binary).
+# We exclude 'NA' pairs (INSUFFICIENT INFO).
+
+acc_map <- c(
+  "confidence_prompt1_initial" = "acc_prompt1_initial",
+  "confidence_prompt2_initial" = "acc_prompt2_initial",
+  "confidence_prompt1_reconsidered" = "acc_prompt1_reconsidered",
+  "confidence_prompt2_reconsidered" = "acc_prompt2_reconsidered"
+)
+
+corr_results <- data.frame()
+
+for(c_col in names(acc_map)) {
+  a_col <- acc_map[[c_col]]
+  
+  if(a_col %in% names(results) & c_col %in% names(results)) {
+    # Calculate Correlation
+    # use="complete.obs" removes rows where confidence is NA (Insufficient Info)
+    cor_val <- cor(results[[c_col]], results[[a_col]], use = "complete.obs", method = "pearson")
+    
+    # Count valid pairs used for correlation
+    valid_pairs <- sum(!is.na(results[[c_col]]) & !is.na(results[[a_col]]))
+    
+    corr_results <- rbind(corr_results, data.frame(
+      Scenario = gsub("confidence_", "", c_col),
+      Correlation_Coef = sprintf("%.4f", cor_val),
+      Valid_Data_Points = valid_pairs
+    ))
+  }
+}
+
+# Write Confidence Report
+conf_file <- file.path(output_dir, "task3-confidence.csv")
+
+cat("--- OVERALL AVERAGE CONFIDENCE ---\n", file = conf_file)
+suppressWarnings(write.table(overall_conf, file = conf_file, sep = ",", row.names = FALSE, append = TRUE))
+
+cat("\n\n--- CONFIDENCE BY STATEMENT TYPE ---\n", file = conf_file, append = TRUE)
+suppressWarnings(write.table(conf_by_type_wide, file = conf_file, sep = ",", row.names = FALSE, append = TRUE))
+
+cat("\n\n--- CORRELATION: CONFIDENCE VS ACCURACY ---\n", file = conf_file, append = TRUE)
+suppressWarnings(write.table(corr_results, file = conf_file, sep = ",", row.names = FALSE, append = TRUE))
+
+message("Saved confidence report to: ", conf_file)
+message("All tasks complete.")

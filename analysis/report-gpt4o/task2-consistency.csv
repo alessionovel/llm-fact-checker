@@ -1,0 +1,22 @@
+"--- FULL INTERNAL CONSISTENCY (Aff vs Neg AND Aff vs Ant) ---"
+"Scenario","Consistency_Pct","Consistent_Triplets","Total_Triplets"
+"Prompt 1 (Initial)","64.79%",92,142
+"Prompt 1 (Reconsidered)","64.08%",91,142
+"Prompt 2 (Initial)","59.86%",85,142
+"Prompt 2 (Reconsidered)","62.68%",89,142
+
+
+--- NEGATION CONSISTENCY (Aff vs Neg only) ---
+"Scenario","Consistency_Pct","Consistent_Triplets","Total_Triplets"
+"Prompt 1 (Initial)","79.58%",113,142
+"Prompt 1 (Reconsidered)","85.21%",121,142
+"Prompt 2 (Initial)","75.35%",107,142
+"Prompt 2 (Reconsidered)","81.69%",116,142
+
+
+--- ANTONYM CONSISTENCY (Aff vs Ant only) ---
+"Scenario","Consistency_Pct","Consistent_Triplets","Total_Triplets"
+"Prompt 1 (Initial)","68.31%",97,142
+"Prompt 1 (Reconsidered)","64.79%",92,142
+"Prompt 2 (Initial)","62.68%",89,142
+"Prompt 2 (Reconsidered)","64.08%",91,142

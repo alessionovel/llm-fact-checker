@@ -1,0 +1,427 @@
+index,statement,type,ground_truth,data_source,verdict-prompt1-initial,confidence-prompt1-initial,verdict-prompt1-reconsidered,confidence-prompt1-reconsidered,verdict-prompt2-initial,confidence-prompt2-initial,verdict-prompt2-reconsidered,confidence-prompt2-reconsidered
+1,Affirmative action is necessary in schools. ,Affirmation,YES,gpt3,INSUFFICIENT INFO,,INSUFFICIENT INFO,,INSUFFICIENT INFO,,INSUFFICIENT INFO,
+2,Affirmative action is not necessary in schools.,Negation,NO,,INSUFFICIENT INFO,,FALSE,10,INSUFFICIENT INFO,,FALSE,95
+3,Affirmative action is dispensable in schools.,Antonym,NO,,INSUFFICIENT INFO,,FALSE,90,INSUFFICIENT INFO,,FALSE,95
+4,Sign languages are the same worldwide.,Affirmation,NO,WP,FALSE,95,FALSE,100,FALSE,95,FALSE,100
+5,Sign languages are not the same worldwide.,Negation,YES,,TRUE,98,TRUE,100,TRUE,100,TRUE,100
+6,Sign languages are different worldwide.,Antonym,YES,,TRUE,95,TRUE,100,TRUE,100,TRUE,100
+7,Albert Einstein failed mathematics classes in school.,Affirmation,NO,WP,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+8,Albert Einstein did not fail mathematics classes in school.,Negation,YES,,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+9,Alebert Einstein passed mathematics classes in school.,Antonym,YES,,FALSE,95,FALSE,99,FALSE,95,TRUE,98
+10,Bats are blind.,Affirmation,NO,WP,FALSE,90,FALSE,99,FALSE,90,FALSE,99
+11,Bats are not blind.,Negation,YES,,TRUE,100,TRUE,100,TRUE,100,TRUE,100
+12,Bats are sighted.,Antonym,YES,,FALSE,95,TRUE,99,FALSE,95,INSUFFICIENT INFO,
+13,The Earth's interior is molten rock.,Affirmation,NO,WP,FALSE,90,FALSE,95,FALSE,90,FALSE,95
+14,The Earth's interior is non-molten rock.,Negation,YES,,FALSE,95,FALSE,98,FALSE,95,FALSE,98
+15,The Earth's interior is solid rock.,Antonym,YES,,FALSE,95,FALSE,99,FALSE,95,FALSE,99
+16,Urine is sterile in the bladder.,Affirmation,NO,WP,TRUE,95,FALSE,98,TRUE,95,FALSE,98
+17,Urnie is non-sterile in the bladder.,Negation,YES,,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+18,Urine is unhygienic in the bladder.,Antonym,YES,,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+19,The Arctic is cold.,Affirmation,YES,chatgpt,TRUE,100,TRUE,99,TRUE,100,TRUE,99
+20,The Arctic is not cold.,Negation,NO,,FALSE,98,FALSE,100,FALSE,100,FALSE,100
+21,The Arctic is hot.,Antonym,NO,,FALSE,99,FALSE,100,FALSE,99,FALSE,100
+22,Saturn’s rings are wide.,Affirmation,YES,chatgpt,TRUE,95,TRUE,99,TRUE,95,TRUE,99
+23,Saturn’s rings are not wide.,Negation,NO,,FALSE,95,TRUE,98,FALSE,98,FALSE,99
+24,Saturn’s rings are narrow.,Antonym,NO,,FALSE,95,TRUE,98,FALSE,95,TRUE,98
+25,Earth’s core is hot.,Affirmation,Yes,chatgpt,TRUE,100,TRUE,100,TRUE,100,TRUE,100
+26,Earth's core is not hot.,Negation,No,,FALSE,99,FALSE,100,FALSE,99,FALSE,100
+27,Earth's core is cold.,Antonym,no,,FALSE,95,FALSE,100,FALSE,99,FALSE,100
+28,Saltwater is dense.,Affirmation,YES,chatgpt,TRUE,95,TRUE,100,TRUE,100,TRUE,100
+29,Saltwater is not dense.,Negation,NO,,FALSE,95,FALSE,100,FALSE,99,FALSE,100
+30,Saltwater is light.,Antonym,NO,,FALSE,95,FALSE,99,FALSE,99,FALSE,100
+31,Polar bears are white.,Affirmation,YES,chatgpt,FALSE,95,TRUE,95,FALSE,95,TRUE,95
+32,Polar bears are not white,Negation,NO,,FALSE,95,TRUE,98,FALSE,95,TRUE,99
+33,Polar bears are black.,Antonym,NO,,FALSE,95,FALSE,99,FALSE,99,FALSE,100
+34,Mercury vapor is toxic.,Affirmation,YES,chatgpt,TRUE,100,TRUE,100,TRUE,100,TRUE,100
+35,Mercury vapor is not toxic.,Negation,NO,,FALSE,99,FALSE,100,FALSE,99,FALSE,100
+36,Mercury vapor is safe.,Antonym,NO,,FALSE,99,FALSE,100,FALSE,99,FALSE,100
+37,The Amazon rainforest is vast.,Affirmation,YES,chatgpt,TRUE,99,TRUE,100,TRUE,100,TRUE,100
+38,The Amazon rainforest is not vast.,Negation,NO,,FALSE,98,FALSE,100,FALSE,99,FALSE,100
+39,The Amazon rainforest is small.,Antonym,NO,,FALSE,99,FALSE,100,FALSE,99,FALSE,100
+40,Giraffes are tall.,Affirmation,YES,chatgpt,TRUE,99,TRUE,100,TRUE,100,TRUE,100
+41,Giraffes are not tall.,Negation,NO,,FALSE,95,FALSE,100,FALSE,99,FALSE,100
+42,Giraffes are short.,Antonym,NO,,FALSE,99,FALSE,100,FALSE,100,FALSE,100
+43,Bamboo is hollow.,Affirmation,YES,chatgpt,INSUFFICIENT INFO,,FALSE,95,FALSE,95,FALSE,98
+44,Bamboo is not hollow.,Negation,NO,,FALSE,95,TRUE,90,FALSE,95,FALSE,99
+45,Bamboo is solid.,Antonym,NO,,FALSE,95,FALSE,98,FALSE,95,FALSE,100
+46,Coral reefs are fragile.,Affirmation,YES,chatgpt,TRUE,95,TRUE,99,TRUE,95,TRUE,99
+47,Coral reefs are not fragile.,Negation,NO,,FALSE,90,FALSE,95,FALSE,98,FALSE,99
+48,Coral reefs are robust.,Antonym,NO,,INSUFFICIENT INFO,,FALSE,95,FALSE,95,INSUFFICIENT INFO,
+49,Venus’s atmosphere is thick.,Affirmation,YES,chatgpt,TRUE,99,TRUE,100,TRUE,99,TRUE,100
+50,Venus’s atmosphere is not thick.,Negation,NO,,FALSE,90,FALSE,99,FALSE,95,FALSE,99
+51,Venus’s atmosphere is thin.,Antonym,NO,,FALSE,99,FALSE,100,FALSE,99,FALSE,100
+52,Quartz crystals are transparent.,Affirmation,YES,chatgpt,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+53,Quartz crystals are not transparent.,Negation,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,100
+54,Quartz crystals are opaque.,Antonym,NO,,FALSE,95,FALSE,100,FALSE,99,FALSE,100
+55,The Pacific Ocean is deep.,Affirmation,YES,chatgpt,TRUE,95,TRUE,100,TRUE,99,TRUE,100
+56,The Pacific Ocean is not deep.,Negation,NO,,FALSE,90,FALSE,99,FALSE,99,FALSE,100
+57,The Pacifi Ocean is shallow.,Antonym,NO,,FALSE,99,FALSE,100,FALSE,99,FALSE,100
+58,Limestone cliffs are steep.,Affirmation,YES,chatgpt,INSUFFICIENT INFO,,TRUE,90,INSUFFICIENT INFO,,FALSE,95
+59,Limestone cliffs are not steep.,Negation,NO,,INSUFFICIENT INFO,,FALSE,90,INSUFFICIENT INFO,,FALSE,95
+60,Limestone cliffs are gentle.,Antonym,NO,,FALSE,95,INSUFFICIENT INFO,,FALSE,90,FALSE,95
+61,Hurricanes are powerful.,Affirmation,YES,chatgpt,TRUE,100,TRUE,100,TRUE,100,TRUE,100
+62,Hurricanes are not powerful.,Negation,NO,,FALSE,90,FALSE,100,FALSE,99,FALSE,100
+63,Hurricanes are weak. ,Antonym,NO,,FALSE,90,FALSE,99,FALSE,0,FALSE,100
+64,Eagles are large birds.,Affirmation,YES,chatgpt,TRUE,95,TRUE,80,TRUE,95,FALSE,100
+65,Eagles are not large birds.,Negation,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,100
+66,Eagles are small birds.,Antonym,NO,,FALSE,95,FALSE,100,FALSE,99,FALSE,100
+67,The Sahara Desert is dry.,Affirmation,YES,chatgpt,TRUE,100,TRUE,95,TRUE,100,TRUE,99
+68,The Sahara Desert is not dry.,Negation,NO,,FALSE,98,FALSE,100,FALSE,100,FALSE,100
+69,The Sahara Desert is wet.,Antonym,NO,,FALSE,95,FALSE,100,FALSE,99,FALSE,100
+70,Oxygen is essential for humans to live.,Affirmation,YES,chatgpt,TRUE,100,TRUE,100,TRUE,100,TRUE,100
+71,Oxygen is not essential for humans to live.,Negation,NO,,FALSE,95,FALSE,100,FALSE,100,TRUE,100
+72,Oxygen is optional for humans to live.,Antonym,NO,,FALSE,99,FALSE,100,FALSE,100,FALSE,100
+73,Diamonds are transparent.,Affirmation,YES,chatgpt,FALSE,95,TRUE,90,FALSE,95,FALSE,99
+74,Diamonds are not transparent. ,Negation,NO,,FALSE,95,FALSE,100,FALSE,95,FALSE,100
+75,Diamonds are opaque.,Antonym,NO,,FALSE,95,FALSE,98,FALSE,95,FALSE,100
+76,The equator is warm year-round.,Affirmation,YES,chatgpt,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+77,The equator is not warm year-round.,Negation,NO,,FALSE,95,TRUE,98,FALSE,95,TRUE,98
+78,The equator is cold year-round.,Antonym,NO,,FALSE,95,FALSE,100,FALSE,99,FALSE,100
+79,The ozone layer is thin.,Affirmation,YES,chatgpt,INSUFFICIENT INFO,,TRUE,95,FALSE,95,TRUE,98
+80,The ozone layer is not thin.,Negation,NO,,FALSE,95,FALSE,99,FALSE,95,TRUE,98
+81,The ozone layer is thick.,Antonym,NO,,FALSE,95,FALSE,98,FALSE,95,FALSE,100
+82,Glaciers are slow-moving.,Affirmation,YES,chatgpt,TRUE,95,TRUE,99,TRUE,100,TRUE,95
+83,Glaciers are not slow-moving. ,Negation,NO,,FALSE,99,TRUE,99,FALSE,99,FALSE,100
+84,Glaciers are fast-moving.,Antonym,NO,,FALSE,90,FALSE,95,FALSE,95,FALSE,98
+85,The human skeleton is rigid.,Affirmation,YES,chatgpt,FALSE,95,FALSE,98,FALSE,95,TRUE,98
+86,The human skeleton is not rigid. ,Negation,NO,,TRUE,95,TRUE,99,FALSE,95,TRUE,98
+87,The human skeleton is flexible. ,Antonym,NO,,TRUE,95,TRUE,98,FALSE,95,TRUE,98
+88,The Dead Sea is salty.,Affirmation,YES,chatgpt,TRUE,100,TRUE,100,TRUE,100,TRUE,100
+89,The Dead Sea is not salty. ,Negation,NO,,FALSE,99,FALSE,100,FALSE,100,FALSE,100
+90,The Dead Sea is sweet.,Antonym,NO,,FALSE,95,TRUE,90,FALSE,95,TRUE,98
+91,Rainforests are humid.,Affirmation,YES,chatgpt,TRUE,99,TRUE,95,TRUE,100,TRUE,95
+92,Rainforests are not humid. ,Negation,NO,,FALSE,98,FALSE,100,FALSE,99,FALSE,100
+93,Rainforests are arid. ,Antonym,NO,,FALSE,99,FALSE,100,FALSE,0,FALSE,100
+94,Lightning bolts are hot.,Affirmation,YES,chatgpt,TRUE,100,TRUE,100,TRUE,100,TRUE,100
+95,Lightning bolts are not hot.,Negation,NO,,FALSE,98,FALSE,100,FALSE,99,FALSE,100
+96,Lightning bolts are cold. ,Antonym,NO,,FALSE,98,FALSE,99,FALSE,99,FALSE,100
+97,Human skin is elastic.,Affirmation,YES,chatgpt,TRUE,98,TRUE,99,TRUE,95,TRUE,99
+98,Human skin is not elastic. ,Negation,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,99
+99,Human skin is rigid.,Antonym,NO,,FALSE,98,FALSE,99,FALSE,99,FALSE,100
+100,Solar eclipses are rare events.,Affirmation,YES,chatgpt,FALSE,95,TRUE,90,FALSE,95,TRUE,90
+101,Solar eclipses are not rare events.,Negation,NO,,FALSE,95,TRUE,98,TRUE,95,FALSE,98
+102,Solar eclipses are common events.,Antonym,NO,,FALSE,90,FALSE,95,FALSE,95,FALSE,99
+103,Earth’s mantle is solid rock.,Affirmation,YES,chatgpt,TRUE,95,FALSE,98,TRUE,100,FALSE,100
+104,Earth's mantle is non-solid rock.,Negation,NO,,FALSE,95,TRUE,98,FALSE,95,TRUE,99
+105,Earth's mantle is liquid rock.,Antonym,NO,,FALSE,95,FALSE,99,FALSE,98,FALSE,100
+106,The Space Race was an important part of the Cold War.,Affirmation,YES,gpt3,TRUE,99,TRUE,100,TRUE,100,TRUE,100
+107,The Space Race was not an important part of the Cold War,Negation,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,100
+108,The Space Race was an unimportant part of the cold war,Antonym,NO,,FALSE,92,FALSE,98,FALSE,90,FALSE,99
+109,"On January 6th, 2021, a pro-Trump mob stormed the US Capitol building in what became known as the Capitol Riot.",Affirmation,YES,gpt3,TRUE,99,TRUE,100,TRUE,100,TRUE,100
+110,"On January 6th, 2021, a pro-Trump mob did not storm the US Capitol building in what became known as the Capitol Riot.",Negation,NO,,FALSE,99,TRUE,99,FALSE,99,TRUE,99
+111,"On January 6th, 2021, a pro-Trump mob protected the US Capitol building in what became known as the Capitol Riot.",Antonym,NO,,FALSE,95,FALSE,99,FALSE,99,TRUE,99
+112,The opening of the Suez Canal links the Mediterranean Sea to the Red Sea and revolutionized trade routes.,Affirmation,YES,gpt3,TRUE,98,TRUE,100,TRUE,99,TRUE,100
+113,The opening of the Suez Canal does not link the Mediterranean Sea to the Red Sea,Negation,NO,,FALSE,99,TRUE,100,FALSE,95,TRUE,100
+114,The opening of the Suez Canal separates the Mediterranean Sea to the Red Sea ,Antonym,NO,,TRUE,99,FALSE,99,TRUE,95,FALSE,100
+115,LGBT rights have been increasingly recognized in many countries since 2015,Affirmation,YES,gpt3,TRUE,95,TRUE,98,TRUE,95,TRUE,98
+116,LGBT rights have not been increasingly recognized in many countries since 2015,Negation,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,99
+117,LGBT rights have been decreasingly recognized in many countries since 2015,Antonym,NO,,FALSE,90,TRUE,85,FALSE,95,INSUFFICIENT INFO,
+118,The 2020 US Election was tarnished by allegations of voter fraud and irregularities.,Affirmation,YES,gpt3,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+119,The 2020 US Election was not tarnished by allegations of voter fraud and irregularities.,negation,NO,,FALSE,90,INSUFFICIENT INFO,,FALSE,90,FALSE,95
+120,The 2020 US Election was polished by allegations of voter fraud and irregularities.,antonym,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,98
+121,The fall of the Soviet Union ended the Cold War.,Affirmation,YES,gpt3,FALSE,95,TRUE,90,FALSE,95,TRUE,90
+122,The fall of the Soviet Union did not end the Cold War.,Negation,NO,,TRUE,98,TRUE,95,TRUE,95,FALSE,98
+123,The fall of the Soviet Union started the Cold War.,Antonym,NO,,FALSE,90,FALSE,100,FALSE,95,FALSE,100
+124,The War in Iraq (2003 – 2011) resulted in the overthrow of the Saddam Hussein government,Affirmation,YES,gpt3,TRUE,99,TRUE,100,TRUE,100,TRUE,100
+125,The War in Iraq (2003 – 2011) did not result in the overthrow of the Saddam Hussein government,Negation,NO,,FALSE,95,FALSE,100,FALSE,95,TRUE,99
+126,The War in Iraq (2003 – 2011) resulted in the victory of the Saddam Hussein government,Antonym,NO,,FALSE,95,FALSE,100,FALSE,95,FALSE,100
+127,The Islamic State of Iraq and Syria (ISIS) is a terrorist organization that has gained notoriety for its brutality since 2014.,Affirmation,YES,gpt3,TRUE,99,TRUE,100,TRUE,99,TRUE,100
+128,The Islamic State of Iraq and Syria (ISIS) is not a terrorist organization that has gained notoriety for its brutality since 2014.,Negation,NO,,FALSE,99,FALSE,100,FALSE,99,FALSE,100
+129,The Islamic State of Iraq and Syria (ISIS) is a terrorist organization that has gained anonymity for its brutality since 2014.,Antonym,NO,,TRUE,99,TRUE,99,FALSE,95,TRUE,99
+130,"Since 2014, there has been a conflict between the Ukrainian government and pro-Russian separatists in eastern Ukraine.",Affirmation,YES,gpt3,TRUE,98,TRUE,100,TRUE,99,TRUE,100
+131,"Since 2014, there has not been a conflict between the Ukrainian government and pro-Russian separatists in eastern Ukraine.",Negation,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,99
+132,"Since 2014, there has been an agreement between the Ukrainian government and pro-Russian separatists in eastern Ukraine.",Antonym,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,100
+133,Ice is cold.,Affirmation,YES,ChatGPT,FALSE,95,TRUE,99,TRUE,100,FALSE,100
+134,Ice is not cold,Negation,NO,,FALSE,98,INSUFFICIENT INFO,,FALSE,95,FALSE,100
+135,Ice is hot,Antonym,NO,,FALSE,95,FALSE,100,FALSE,100,FALSE,100
+136,The sun is hot.,Affirmation,YES,ChatGPT,TRUE,100,TRUE,100,TRUE,100,TRUE,100
+137,The sun is not hot,Negation,NO,,FALSE,95,FALSE,100,FALSE,100,FALSE,100
+138,The sun is cold,Antonym,NO,,FALSE,95,FALSE,100,FALSE,95,FALSE,100
+139,Snow is white.,Affirmation,YES,ChatGPT,TRUE,99,FALSE,95,FALSE,95,INSUFFICIENT INFO,
+140,Snow is not white,Negation,NO,,INSUFFICIENT INFO,,FALSE,95,FALSE,100,FALSE,95
+141,Snow is black,Antonym,NO,,FALSE,99,FALSE,100,FALSE,100,FALSE,100
+142,Grass is green.,Affirmation,YES,ChatGPT,TRUE,99,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+143,Grass is not green,Negation,NO,,FALSE,95,FALSE,99,FALSE,100,FALSE,95
+144,Grass is red,Antonym,NO,,FALSE,99,FALSE,100,FALSE,100,FALSE,100
+145,Diamonds are hard.,Affirmation,YES,ChatGPT,TRUE,98,TRUE,100,TRUE,95,TRUE,100
+146,Diamonds are not hard,Negation,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,100
+147,Diamonds are soft,Antonym,NO,,FALSE,95,TRUE,99,FALSE,95,FALSE,100
+148,The ocean is salty.,Affirmation,YES,ChatGPT,TRUE,100,TRUE,100,TRUE,100,TRUE,100
+149,The ocean is not salty,Negation,NO,,FALSE,90,FALSE,100,FALSE,100,FALSE,100
+150,The ocean is sweet,Antonym,NO,,FALSE,95,FALSE,100,FALSE,95,FALSE,100
+151,Fire is bright.,Affirmation,YES,ChatGPT,FALSE,95,TRUE,90,FALSE,95,INSUFFICIENT INFO,
+152,Fire is not bright,Negation,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,100
+153,Fire is dull,Antonym,NO,,INSUFFICIENT INFO,,FALSE,100,FALSE,95,FALSE,100
+154,Gold is valuable.,Affirmation,YES,ChatGPT,TRUE,95,INSUFFICIENT INFO,,TRUE,100,INSUFFICIENT INFO,
+155,Gold is not valuable,Negation,NO,,FALSE,90,FALSE,99,FALSE,95,FALSE,100
+156,Gold is worthless,Antonym,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,100
+157,Sand is coarse.,Affirmation,YES,ChatGPT,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+158,Sand is not coarse,Negation,NO,,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+159,Sand is soft,Antonym,NO,,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,,FALSE,95
+160,Honey is sweet.,Affirmation,YES,ChatGPT,TRUE,99,TRUE,100,TRUE,99,TRUE,100
+161,Honey is not sweet,Negation,NO,,FALSE,95,FALSE,100,FALSE,100,FALSE,100
+162,Honey is sour,Antonym,NO,,FALSE,98,FALSE,100,FALSE,99,FALSE,100
+163,Iron is strong.,Affirmation,YES,ChatGPT,INSUFFICIENT INFO,,FALSE,90,INSUFFICIENT INFO,,FALSE,95
+164,Iron is not strong,Negation,NO,,INSUFFICIENT INFO,,FALSE,95,FALSE,95,INSUFFICIENT INFO,
+165,Irong is weak,Antonym,NO,,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+166,The moon is round.,Affirmation,YES,ChatGPT,FALSE,95,TRUE,99,FALSE,95,TRUE,99
+167,The moon is not round,Negation,NO,,FALSE,95,TRUE,99,FALSE,100,FALSE,100
+168,The moon is angular,Antonym,NO,,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+169,Clouds are fluffy.,Affirmation,YES,ChatGPT,INSUFFICIENT INFO,,FALSE,90,FALSE,90,INSUFFICIENT INFO,
+170,Clouds are not flufft,Negation,NO,,FALSE,95,INSUFFICIENT INFO,,FALSE,99,FALSE,100
+171,Clouds are rough,Antonym,NO,,FALSE,95,INSUFFICIENT INFO,,FALSE,95,FALSE,100
+172,Most leaves are green.,Affirmation,YES,ChatGPT,TRUE,95,TRUE,85,FALSE,95,INSUFFICIENT INFO,
+173,Most leaves are not green,Negation,NO,,INSUFFICIENT INFO,,TRUE,95,FALSE,98,FALSE,99
+174,Most leaves are red,Antonym,NO,,FALSE,90,FALSE,99,FALSE,95,FALSE,100
+175,Glass is transparent.,Affirmation,YES,ChatGPT,TRUE,95,FALSE,98,FALSE,95,INSUFFICIENT INFO,
+176,Glass is not transparent,Negation,NO,,FALSE,95,FALSE,100,FALSE,95,FALSE,100
+177,Glass is opaque,Antonym,NO,,FALSE,90,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+178,Aluminum is light.,Affirmation,YES,ChatGPT,TRUE,95,TRUE,99,TRUE,95,TRUE,99
+179,Aluminium is not light,Negation,NO,,FALSE,95,FALSE,99,FALSE,95,TRUE,98
+180,Aluminium is heavy,Antonym,NO,,FALSE,90,FALSE,95,FALSE,95,FALSE,100
+181,Chalk is soft.,Affirmation,YES,ChatGPT,INSUFFICIENT INFO,,TRUE,95,FALSE,95,INSUFFICIENT INFO,
+182,Chalk is not soft,Negation,NO,,FALSE,95,TRUE,90,FALSE,95,INSUFFICIENT INFO,
+183,Chalk is hard,Antonym,NO,,TRUE,95,TRUE,99,TRUE,95,FALSE,95
+184,Pepper is spicy.,Affirmation,YES,ChatGPT,FALSE,90,INSUFFICIENT INFO,,FALSE,90,INSUFFICIENT INFO,
+185,Pepper is not spicy,Negation,NO,,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+186,Pepper is tasteless,Antonym,NO,,FALSE,90,FALSE,95,FALSE,95,FALSE,100
+187,Copper is reddish.,Affirmation,YES,ChatGPT,TRUE,99,TRUE,95,TRUE,100,TRUE,95
+188,Copper is not reddish,Negation,NO,,FALSE,98,TRUE,99,FALSE,99,TRUE,99
+189,Copper is greenish,Antonym,NO,,FALSE,95,FALSE,100,FALSE,95,FALSE,100
+190,Asphalt is black.,Affirmation,YES,ChatGPT,FALSE,95,TRUE,99,FALSE,95,TRUE,99
+191,Asphalt is not black,Negation,NO,,INSUFFICIENT INFO,,TRUE,95,FALSE,95,FALSE,100
+192,Asphalt is white,Antonym,NO,,FALSE,95,FALSE,100,FALSE,99,FALSE,100
+193,Milk is white.,Affirmation,YES,ChatGPT,FALSE,95,TRUE,90,FALSE,95,INSUFFICIENT INFO,
+194,Milk is not white,Negation,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,100
+195,Milk is black,Antonym,NO,,FALSE,95,FALSE,100,FALSE,100,FALSE,100
+196,Lemons are sour.,Affirmation,YES,ChatGPT,TRUE,99,TRUE,95,TRUE,100,TRUE,95
+197,Lemons are not sour,Negation,NO,,FALSE,95,FALSE,99,FALSE,99,FALSE,100
+198,Lemons are sweet,Antonym,NO,,FALSE,90,FALSE,100,FALSE,95,FALSE,100
+199,Butter is yellow.,Affirmation,YES,ChatGPT,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+200,Butter is not yellow,Negation,NO,,INSUFFICIENT INFO,,FALSE,95,FALSE,95,INSUFFICIENT INFO,
+201,Butter is purple,Antonym,NO,,FALSE,95,FALSE,100,FALSE,99,FALSE,100
+202,Salt is salty.,Affirmation,YES,ChatGPT,TRUE,100,TRUE,100,TRUE,100,TRUE,99
+203,Salt is not salty,Negation,NO,,FALSE,95,INSUFFICIENT INFO,,FALSE,100,FALSE,100
+204,Salt is bland,Antonym,NO,,FALSE,95,FALSE,98,FALSE,95,INSUFFICIENT INFO,
+205,Coal is black.,Affirmation,YES,ChatGPT,TRUE,100,INSUFFICIENT INFO,,FALSE,95,TRUE,99
+206,Coal is not black,Negation,NO,,INSUFFICIENT INFO,,FALSE,95,FALSE,95,FALSE,100
+207,Coal is white,Antonym,NO,,FALSE,90,FALSE,100,FALSE,95,FALSE,100
+208,Silk is smooth.,Affirmation,YES,ChatGPT,TRUE,95,TRUE,90,TRUE,100,TRUE,95
+209,Silk is not smooth,Negation,NO,,FALSE,95,TRUE,98,FALSE,95,FALSE,99
+210,Silk is rough,Antonym,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,100
+211,Granite is hard.,Affirmation,YES,ChatGPT,TRUE,98,TRUE,95,TRUE,95,TRUE,100
+212,Granite is not hard,Negation,NO,,FALSE,95,FALSE,100,FALSE,95,FALSE,100
+213,Granite is soft,Antonym,NO,,FALSE,95,FALSE,100,FALSE,95,FALSE,100
+214,Steam is hot.,Affirmation,YES,ChatGPT,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+215,Steam is not hot,Negation,NO,,FALSE,95,FALSE,100,FALSE,95,FALSE,100
+216,Steam is cold,Antonym,NO,,FALSE,95,FALSE,100,FALSE,99,FALSE,100
+217,Fog is thick.,Affirmation,YES,ChatGPT,INSUFFICIENT INFO,,INSUFFICIENT INFO,,INSUFFICIENT INFO,,INSUFFICIENT INFO,
+218,Fog is not thick,Negation,NO,,INSUFFICIENT INFO,,FALSE,95,FALSE,95,INSUFFICIENT INFO,
+219,Fog is thin,Antonym,NO,,INSUFFICIENT INFO,,FALSE,100,INSUFFICIENT INFO,,FALSE,100
+220,Mercury is liquid.,Affirmation,YES,ChatGPT,TRUE,100,TRUE,100,FALSE,99,TRUE,99
+221,Mercury is not liquid,Negation,NO,,FALSE,95,FALSE,100,FALSE,100,TRUE,100
+222,Mercury is solid,Antonym,NO,,FALSE,95,TRUE,99,FALSE,95,FALSE,100
+223,Wood is rigid.,Affirmation,YES,ChatGPT,FALSE,95,TRUE,90,FALSE,95,INSUFFICIENT INFO,
+224,Wood is not rigid,Negation,NO,,FALSE,95,TRUE,98,FALSE,95,TRUE,90
+225,Wood is flexible,Antonym,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,100
+226,Soil is fertile.,Affirmation,YES,ChatGPT,INSUFFICIENT INFO,,INSUFFICIENT INFO,,INSUFFICIENT INFO,,INSUFFICIENT INFO,
+227,Soil is not fertile,Negation,NO,,INSUFFICIENT INFO,,FALSE,100,FALSE,95,INSUFFICIENT INFO,
+228,Soil is infertile,Antonym,NO,,INSUFFICIENT INFO,,FALSE,100,INSUFFICIENT INFO,,FALSE,
+229,Marble is heavy.,Affirmation,YES,ChatGPT,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,,FALSE,100
+230,Marble is not heavy,Negation,NO,,FALSE,90,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+231,Marble is light,Antonym,NO,,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+232,Vinegar is acidic.,Affirmation,YES,ChatGPT,TRUE,100,TRUE,100,TRUE,100,TRUE,100
+233,Vinegar is not acidic,Negation,NO,,FALSE,98,FALSE,100,FALSE,95,FALSE,100
+234,Vinegar is sweet,Antonym,NO,,FALSE,90,FALSE,100,FALSE,95,FALSE,100
+235,Wool is warm.,Affirmation,YES,ChatGPT,TRUE,95,TRUE,80,TRUE,95,FALSE,98
+236,Wool is not warm,Negation,NO,,FALSE,98,FALSE,99,FALSE,95,FALSE,100
+237,Wool is cold,Antonym,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,100
+238,Sugar is sweet.,Affirmation,YES,ChatGPT,TRUE,100,TRUE,100,TRUE,100,TRUE,95
+239,Sugar is not sweet,Negation,NO,,FALSE,95,FALSE,100,FALSE,100,FALSE,100
+240,Sugar is sour,Antonym,NO,,FALSE,95,FALSE,100,FALSE,99,FALSE,100
+241,Bricks are red.,Affirmation,YES,ChatGPT,INSUFFICIENT INFO,,FALSE,90,INSUFFICIENT INFO,,FALSE,90
+242,Bricks are not red,Negation,NO,,INSUFFICIENT INFO,,FALSE,90,FALSE,90,INSUFFICIENT INFO,
+243,Bricks are green,Antonym,NO,,INSUFFICIENT INFO,,FALSE,95,FALSE,95,INSUFFICIENT INFO,
+244,Water is clear.,Affirmation,YES,ChatGPT,FALSE,95,TRUE,90,FALSE,95,INSUFFICIENT INFO,
+245,Water is not clear,Negation,NO,,INSUFFICIENT INFO,,FALSE,100,FALSE,95,FALSE,100
+246,Water is unclear,Antonym,NO,,FALSE,95,FALSE,100,FALSE,95,FALSE,100
+247,Clay is sticky.,Affirmation,YES,ChatGPT,INSUFFICIENT INFO,,TRUE,95,INSUFFICIENT INFO,,FALSE,95
+248,Clay is not sticky,Negation,NO,,FALSE,90,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+249,Clay is slippery,Antonym,NO,,FALSE,95,TRUE,90,FALSE,95,INSUFFICIENT INFO,
+250,Charcoal is brittle.,Affirmation,YES,ChatGPT,TRUE,95,TRUE,99,TRUE,98,FALSE,95
+251,Charcoal is not brittle,Negation,NO,,FALSE,95,TRUE,90,FALSE,95,TRUE,98
+252,Charcoal is resilient,Antonym,NO,,FALSE,95,TRUE,90,FALSE,95,INSUFFICIENT INFO,
+253,Neon is inert.,Affirmation,YES,ChatGPT,FALSE,95,TRUE,99,TRUE,95,FALSE,100
+254,Neon is not inert,Negation,NO,,FALSE,95,TRUE,99,FALSE,100,TRUE,100
+255,Neon is active,Antonym,NO,,FALSE,95,TRUE,99,FALSE,95,TRUE,99
+256,Rubber is flexible.,Affirmation,YES,ChatGPT,TRUE,100,TRUE,95,TRUE,100,TRUE,95
+257,Rubber is not flexible,Negation,NO,,FALSE,95,FALSE,100,FALSE,99,FALSE,100
+258,Rubber is rigid,Antonym,NO,,FALSE,95,FALSE,100,FALSE,95,FALSE,100
+259,Potassium is reactive.,Affirmation,YES,ChatGPT,TRUE,100,TRUE,100,TRUE,100,TRUE,100
+260,Potassium is not reactive,Negation,NO,,FALSE,90,FALSE,100,FALSE,90,FALSE,100
+261,Potassium is unreactive,Antonym,NO,,FALSE,90,FALSE,100,FALSE,99,FALSE,100
+262,Paper is thin.,Affirmation,YES,ChatGPT,INSUFFICIENT INFO,,INSUFFICIENT INFO,,INSUFFICIENT INFO,,INSUFFICIENT INFO,
+263,Paper is not thin,Negation,NO,,INSUFFICIENT INFO,,FALSE,95,FALSE,95,INSUFFICIENT INFO,
+264,Paper is thick,Antonym,NO,,INSUFFICIENT INFO,,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+265,Steel is durable.,Affirmation,YES,ChatGPT,TRUE,95,TRUE,98,TRUE,100,TRUE,95
+266,Steel is not durable,Negation,NO,,FALSE,95,FALSE,100,FALSE,95,FALSE,100
+267,Steel is delicate,Antonym,NO,,FALSE,90,FALSE,100,FALSE,90,FALSE,100
+268,Icebergs are massive.,Affirmation,YES,ChatGPT,INSUFFICIENT INFO,,TRUE,95,INSUFFICIENT INFO,,TRUE,95
+269,Icebergs are not massive,Negation,NO,,FALSE,95,FALSE,99,FALSE,100,FALSE,100
+270,Icebergs are tiny,Antonym,NO,,FALSE,95,FALSE,100,FALSE,95,FALSE,100
+271,Sandstone is porous.,Affirmation,YES,ChatGPT,TRUE,95,TRUE,98,TRUE,95,FALSE,98
+272,Sandstone is not porous,Negation,NO,,FALSE,90,FALSE,95,FALSE,90,FALSE,95
+273,Sandstone is impermeable,Antonym,NO,,FALSE,90,FALSE,95,FALSE,90,FALSE,95
+274,Air is invisible.,Affirmation,YES,ChatGPT,TRUE,100,TRUE,100,TRUE,100,TRUE,99
+275,Air is not invisible,Negation,NO,,FALSE,95,TRUE,99,FALSE,95,TRUE,99
+276,Air is visible,Antonym,NO,,FALSE,95,FALSE,100,FALSE,95,FALSE,100
+277,Lightning is bright.,Affirmation,YES,ChatGPT,TRUE,99,TRUE,100,TRUE,95,TRUE,99
+278,Lighting is not bright,Negation,NO,,INSUFFICIENT INFO,,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+279,Lighting is dull ,Antonym,NO,,INSUFFICIENT INFO,,FALSE,100,FALSE,95,INSUFFICIENT INFO,
+280,Lava is molten.,Affirmation,YES,ChatGPT,TRUE,100,TRUE,100,TRUE,100,TRUE,100
+281,Lava is not molten,Negation,NO,,FALSE,95,FALSE,100,FALSE,100,TRUE,100
+282,Lava is solid,Antonym,NO,,INSUFFICIENT INFO,,FALSE,100,FALSE,95,FALSE,100
+283,It is not possible to harm others merely by thinking bad thoughts about them.,Affirmation,YES,CT papers,FALSE,95,TRUE,90,FALSE,95,TRUE,99
+284,It is possible to harm others merely by thinking bad thoughts about them.,Negation,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,100
+285,Bad thoughts directly cause harm to others.,Antonym,NO,,FALSE,95,FALSE,100,FALSE,99,FALSE,100
+286,Numbers like 13 and 7 have no special powers.,Affirmation,YES,CT papers,INSUFFICIENT INFO,,TRUE,95,FALSE,95,TRUE,99
+287,Numbers like 13 and 7 do have special powers.,Negation,NO,,INSUFFICIENT INFO,,FALSE,95,FALSE,95,INSUFFICIENT INFO,
+288,Numbers like 13 and 7 are highly powerful and influential.,Antonym,NO,,INSUFFICIENT INFO,,FALSE,95,FALSE,95,INSUFFICIENT INFO,
+289,There is an obesity epidemic going on in the US.,Affirmation,YES,CT papers,TRUE,95,TRUE,98,TRUE,95,TRUE,99
+290,There is not an obesity epidemic going on in the US.,Negation,NO,,FALSE,95,FALSE,98,FALSE,95,FALSE,99
+291,Obesity rates in the US are declining significantly,Antonym,NO,,FALSE,85,FALSE,95,FALSE,90,FALSE,95
+292,Water will be a major constraint for agriculture in coming decades and particularly in Asia and Africa this will require major institutional adjustments.,Affirmation,YES,CT papers,TRUE,95,TRUE,98,TRUE,95,TRUE,98
+293,"Water will not be a major constraint for agriculture in coming decades, nor will this require major institutional adjustments.",Negation,NO,,FALSE,90,FALSE,95,FALSE,92,FALSE,98
+294,"Water will be abundant and supportive for agriculture, requiring no major adjustments.",Antonym,NO,,FALSE,90,FALSE,95,FALSE,90,FALSE,95
+295,Scientology is a dangerous cult and a manipulative profit-making business.,Affirmation,YES,WP,INSUFFICIENT INFO,,FALSE,90,INSUFFICIENT INFO,,FALSE,90
+296,Scientology is not a dangerous cult nor a manipulative profit-making business.,Negation,NO,,FALSE,90,INSUFFICIENT INFO,,FALSE,92,INSUFFICIENT INFO,
+297,Scientology is a safe cult and a tolerant profit-making business,Antonym,NO,,FALSE,92,INSUFFICIENT INFO,,FALSE,90,FALSE,95
+298,Julius Caesar was not born via caesarean section. ,Affirmation,YES,WP,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+299,Julius Caesar was born via caesarean section.,Negation,NO,,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+300,Julius Caesar's was born via natural birth.,Antonym,NO,,TRUE,100,INSUFFICIENT INFO,,TRUE,100,TRUE,100
+301,Women make up a small percentage of the workforce in STEM fields.,Affirmation,YES,gpt3,FALSE,95,TRUE,98,FALSE,95,TRUE,98
+302,Women do not make up a small percentage of the workforce in STEM fields.,Negation,NO,,FALSE,98,TRUE,99,FALSE,95,TRUE,98
+303,Women make up a large percentage of the workforce in STEM fields.,Antonym,NO,,FALSE,98,FALSE,99,FALSE,95,FALSE,98
+304,Gender dysphoria is a real medical condition affecting many people.,Affirmation,YES,gpt3,TRUE,95,TRUE,99,TRUE,95,TRUE,100
+305,Gender dysphoria is not a real medical condition affecting many people.,Negation,NO,,FALSE,98,FALSE,100,FALSE,95,FALSE,100
+306,Gender dysphoria is a nonexistent condition.,Antonym,NO,,FALSE,99,FALSE,100,FALSE,99,FALSE,100
+307,Studies show gender bias in hiring decisions.,Affirmation,YES,gpt3,TRUE,95,TRUE,98,TRUE,95,TRUE,98
+308,Studies do not show gender bias in hiring decisions.,Negation,NO,,INSUFFICIENT INFO,,FALSE,95,FALSE,90,FALSE,95
+309,Studies show gender neutrality in hiring decisions.,Antonym,NO,,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,,FALSE,95
+310,Gender stereotypes are pervasive. Society often holds rigid views about what is “appropriate” for each gender.,Affirmation,YES,gpt3,TRUE,98,TRUE,95,INSUFFICIENT INFO,,TRUE,95
+311,Gender stereotypes are not pervasive. Society does not holds rigid views about what is “appropriate” for each gender.,Negation,NO,,FALSE,90,FALSE,95,FALSE,90,FALSE,95
+312,Gender stereotypes are limited. Society often holds open views about what is “appropriate” for each gender.,Antonym,NO,,FALSE,95,FALSE,98,FALSE,95,FALSE,98
+313,The Earth is the only known planet to support life.,Affirmation,YES,gpt3,TRUE,95,TRUE,99,TRUE,100,FALSE,99
+314,The Earth is not the only known planet to support life.,Negation,NO,,INSUFFICIENT INFO,,FALSE,100,INSUFFICIENT INFO,,FALSE,100
+315,"Many planets, not just Earth, support life.",Antonym,NO,,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,,FALSE,100
+316,The Earth's magnetic field is responsible for protecting the planet from solar radiation.,Affirmation,YES,gpt3,TRUE,99,TRUE,99,TRUE,99,TRUE,99
+317,The Earth's magnetic field is not responsible for protecting the planet from solar radiation.,Negation,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,100
+318,The Earth's magnetic field fails to protect the planet from solar radiation.,Antonym,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,100
+319,Gender roles are changing in the home. Society is slowly moving away from traditional gender roles.,Affirmation,YES,gpt3,INSUFFICIENT INFO,,TRUE,95,INSUFFICIENT INFO,,TRUE,95
+320,Gender roles are not changing in the home. Society is not slowly moving away from traditional gender roles.,Negation,NO,,FALSE,92,FALSE,98,FALSE,90,FALSE,95
+321,Gender roles are becoming more traditional and rigid in the home.,Antonym,NO,,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,,FALSE,95
+322,The Earth is the only known planet to have liquid water on its surface.,Affirmation,YES,gpt3,TRUE,100,TRUE,99,TRUE,100,TRUE,99
+323,The Earth is not the only known planet to have liquid water on its surface.,Negation,NO,,FALSE,98,TRUE,99,TRUE,95,FALSE,100
+324,More planets besides Earth have liquid water on its surface.,Antonym,NO,,TRUE,95,TRUE,85,TRUE,95,TRUE,80
+325,The Earth is the only known planet to have intelligent life.,Affirmation,YES,gpt3,INSUFFICIENT INFO,,TRUE,99,INSUFFICIENT INFO,,TRUE,99
+326,The Earth is not the only known planet to have intelligent life.,Negation,NO,,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,,FALSE,100
+327,More planets besides Earth have intelligent life.,Antonym,NO,,INSUFFICIENT INFO,,INSUFFICIENT INFO,,INSUFFICIENT INFO,,INSUFFICIENT INFO,
+328,Climate change is real and caused by human activity.,Affirmation,YES,gpt3,TRUE,99,TRUE,99,TRUE,99,TRUE,99
+329,Climate change is not real and it is not caused by human activity.,Negation,NO,,FALSE,99,FALSE,99,FALSE,99,FALSE,99
+330,"The climate is unreal, and human activity has no impact on it.",Antonym,NO,,FALSE,99,FALSE,99,FALSE,99,FALSE,100
+331,Vaccinations are an essential part of public health.,Affirmation,YES,gpt3,TRUE,99,TRUE,100,TRUE,99,TRUE,100
+332,Vaccinations are not an essential part of public health.,Negation,NO,,FALSE,98,FALSE,99,FALSE,95,FALSE,100
+333,Vaccinations are harmful and should be avoided in public health.,Antonym,NO,,FALSE,99,FALSE,100,FALSE,99,FALSE,100
+334,The Earth's gravity is responsible for the oceans' tides.,Affirmation,YES,gpt3,FALSE,90,FALSE,95,FALSE,95,FALSE,99
+335,The Earth's gravity is not responsible for the oceans' tides.,Negation,NO,,FALSE,95,FALSE,99,FALSE,99,FALSE,100
+336,The oceans' tides are caused by forces unrelated to Earth's gravity.,Antonym,NO,,FALSE,98,FALSE,100,FALSE,99,FALSE,100
+337,The Earth is the only planet in our solar system with an atmosphere containing oxygen.,Affirmation,YES,gpt3,TRUE,100,FALSE,100,TRUE,95,FALSE,99
+338,The Earth is not the only planet in our solar system with an atmosphere containing oxygen.,Negation,NO,,INSUFFICIENT INFO,,FALSE,100,FALSE,99,TRUE,99
+339,More planets besides Earth in our solar system with an atmosphere containing oxygen.,Antonym,NO,,FALSE,95,TRUE,98,TRUE,95,FALSE,100
+340,Vaccines are safe and effective.,Affirmation,YES,gpt3,TRUE,95,INSUFFICIENT INFO,,TRUE,95,INSUFFICIENT INFO,
+341,Vaccines are not safe or effective.,Negation,NO,,FALSE,98,FALSE,99,FALSE,95,FALSE,99
+342,Vaccines are dangerous and ineffective.,Antonym,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,99
+343,Religion should not be used to justify discrimination.,Affirmation,YES,gpt3,INSUFFICIENT INFO,,TRUE,100,INSUFFICIENT INFO,,TRUE,100
+344,Religion should be used to justify discrimination.,Negation,NO,,FALSE,95,FALSE,100,FALSE,99,FALSE,100
+345,Religion is a legitimate basis for discrimination.,Antonym,NO,,FALSE,90,FALSE,95,FALSE,95,FALSE,99
+346,The universe is expanding.,Affirmation,YES,gpt3,TRUE,100,TRUE,99,TRUE,100,TRUE,99
+347,The universe is not expanding.,Negation,NO,,FALSE,99,FALSE,100,FALSE,99,FALSE,100
+348,The universe is contracting.,Antonym,NO,,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,,FALSE,95
+349,A military operation led by the United States aimed at defeating ISIS in Iraq and Syria has been ongoing since 2014.,Affirmation,YES,gpt3,TRUE,95,TRUE,98,TRUE,95,TRUE,98
+350,A military operation led by the United States aimed at defeating ISIS in Iraq and Syria has not been ongoing since 2014.,Negation,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,99
+351,"No US-led operation against ISIS existed; instead, the US avoided military involvement in Iraq and Syria.",Antonym,NO,,FALSE,95,FALSE,98,FALSE,95,FALSE,99
+352,"In 2016, the world’s nations agreed to take action to reduce global warming.",Affirmation,YES,gpt3,TRUE,95,TRUE,99,TRUE,95,TRUE,99
+353,"In 2016, the world’s nations did not agree to take action to reduce global warming.",Negation,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,99
+354,"In 2016, the world’s nations rejected to take action to reduce global warming.",Antonym,NO,,FALSE,95,FALSE,98,FALSE,95,FALSE,100
+355,The overthrow of the monarchy and the establishment of a republic in France had a major impact on the political landscape of Europe.,Affirmation,YES,gpt3,TRUE,98,TRUE,99,TRUE,99,TRUE,100
+356,The overthrow of the monarchy and the establishment of a republic in France did not have a major impact on the political landscape of Europe.,Negation,NO,,FALSE,90,FALSE,99,FALSE,90,FALSE,99
+357,The overthrow of the monarchy and the establishment of a republic in France had no influence on the political landscape of Europe.,Antonym,NO,,FALSE,90,FALSE,99,FALSE,90,FALSE,99
+358,"The War in Iraq was a military conflict between the United States and its allies, and Iraq from 2003 to 2011.",Affirmation,YES,gpt3,TRUE,95,TRUE,99,TRUE,95,TRUE,98
+359,"The War in Iraq was not a military conflict between the United States and its allies, and Iraq from 2003 to 2011.",Negation,NO,,FALSE,95,TRUE,98,FALSE,95,TRUE,99
+360,"The United States and Iraq had peaceful relations from 2003 to 2011, with no conflict.",Antonym,NO,,FALSE,90,FALSE,100,FALSE,95,FALSE,100
+361,"Relations between the US and India improved in 2020, as the US supported India’s growing economy.",Affirmation,YES,gpt3,INSUFFICIENT INFO,,TRUE,90,FALSE,95,TRUE,90
+362,"Relations between the US and India did not improve in 2020, as the US supported India’s growing economy.",Negation,NO,,FALSE,92,FALSE,98,FALSE,90,INSUFFICIENT INFO,
+363,"Relations between the US and India worsened in 2020, with the US undermining India’s economy.",Antonym,NO,,INSUFFICIENT INFO,,FALSE,95,FALSE,90,INSUFFICIENT INFO,
+364,"In 2012, the discovery of a particle, the Higgs Boson, was responsible for giving mass to other particles.",Affirmation,YES,gpt3,FALSE,95,FALSE,100,FALSE,95,FALSE,100
+365,"In 2012, the discovery of the Higgs Boson was not responsible for giving mass to other particles.",Negation,NO,,TRUE,99,TRUE,100,TRUE,99,TRUE,100
+366,"In 2012, scientists discovered no particle with any role in giving mass to other particles.",Antonym,NO,,FALSE,95,TRUE,99,FALSE,95,TRUE,99
+367,"Relations between the US and China continued to deteriorate in 2020, as both countries imposed sanctions on one another.",Affirmation,YES,gpt3,TRUE,95,TRUE,98,TRUE,95,TRUE,98
+368,Relations between the US and China did not continue to deteriorate in 2020.,Negation,NO,,FALSE,98,FALSE,99,FALSE,95,FALSE,98
+369,"Relations between the US and China improved, with both countries lifting sanctions and cooperating.",Antonym,NO,,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,,FALSE,95
+370,"Digital currencies such as Bitcoin have become increasingly popular since the 2010s, with market capitalization reaching billions of dollars.",Affirmation,YES,gpt3,TRUE,98,TRUE,99,TRUE,95,TRUE,99
+371,Digital currencies such as Bitcoin have not become increasingly popular since the 2010s.,Negation,NO,,FALSE,95,FALSE,98,FALSE,98,FALSE,99
+372,"Digital currencies have lost popularity, with market capitalization shrinking dramatically.",Antonym,NO,,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,,FALSE,95
+373,The Protestant Reformation led to the splitting of the Christian world into two branches and the rise of new religious beliefs.,Affirmation,YES,gpt3,FALSE,90,TRUE,95,FALSE,95,TRUE,98
+374,The Protestant Reformation did not lead to the splitting of the Christian world into two branches and the rise of new religious beliefs.,Negation,NO,,FALSE,98,FALSE,100,FALSE,99,FALSE,100
+375,The Protestant Reformation strengthened unity within the Christian world and suppressed new beliefs.,Antonym,NO,,FALSE,90,FALSE,95,FALSE,95,FALSE,98
+376,"Renewable energy sources, such as solar and wind, have become increasingly popular in recent years since the 2010s.",Affirmation,YES,gpt3,TRUE,98,TRUE,99,TRUE,98,TRUE,99
+377,"Renewable energy sources, such as solar and wind, have not become increasingly popular in recent years since the 2010s.",Negation,NO,,FALSE,98,FALSE,99,FALSE,98,FALSE,99
+378,"Renewable energy sources, such as solar and wind, have become less popular in recent years since the 2010s.",Antonym,NO,,FALSE,95,FALSE,98,FALSE,95,FALSE,98
+379,"Social media use skyrocketed in 2020 as people turned to platforms such as Twitter, TikTok, and Instagram for news and entertainment.",Affirmation,YES,gpt3,TRUE,95,TRUE,98,TRUE,95,TRUE,98
+380,Social media use did not skyrocket in 2020.,Negation,NO,,FALSE,95,TRUE,98,FALSE,95,TRUE,98
+381,Social media use declined sharply in 2020.,Antonym,NO,,FALSE,95,TRUE,98,FALSE,95,TRUE,98
+382,"Since the 2010s, far-right political parties have been gaining ground in many countries, fueled by xenophobia and anti-immigration sentiment.",Affirmation,YES,gpt3,INSUFFICIENT INFO,,TRUE,95,INSUFFICIENT INFO,,TRUE,95
+383,"Since the 2010s, far-right political parties have not been gaining ground in many countries.",Negation,NO,,FALSE,95,FALSE,98,FALSE,98,FALSE,99
+384,"Since the 2010s, far-right political parties have been losing influence in many countries.",Antonym,NO,,INSUFFICIENT INFO,,FALSE,85,FALSE,90,INSUFFICIENT INFO,
+385,"Since 2015, NASA has been on a mission to explore the outer reaches of the Solar System, culminating in a flyby of the dwarf planet Pluto.",Affirmation,YES,gpt3,FALSE,95,TRUE,95,FALSE,95,TRUE,95
+386,"Since 2015, NASA has not been on a mission to explore the outer reaches of the Solar System.",Negation,NO,,FALSE,95,FALSE,98,FALSE,95,FALSE,99
+387,"Since 2015, NASA has not been intrested in outer Solar System exploration.",Antonym,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,99
+388,Relations between the US and North Korea remained tense in 2020 as both countries continued to threaten one another.,Affirmation,YES,gpt3,FALSE,95,TRUE,98,FALSE,95,TRUE,98
+389,Relations between the US and North Korea did not remain tense in 2020.,Negation,NO,,FALSE,95,TRUE,98,FALSE,95,TRUE,98
+390,Relations between the US and North Korea improved in 2020.,Antonym,NO,,FALSE,95,FALSE,99,FALSE,95,FALSE,100
+391,The US-Mexico border experienced a crisis in 2020 as thousands of migrants attempted to cross into the US.,Affirmation,YES,gpt3,TRUE,95,TRUE,98,FALSE,95,TRUE,90
+392,The US-Mexico border did not experience a crisis in 2020.,Negation,NO,,FALSE,90,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+393,"The US-Mexico border saw stable conditions, with no unusual migration pressures in 2020.",Antonym,NO,,FALSE,90,FALSE,95,FALSE,90,FALSE,95
+394,"In 2016, a disease spread by mosquitos caused severe birth defects in babies born to infected mothers, known as the Zika Outbreak.",Affirmation,YES,gpt3,TRUE,95,TRUE,99,TRUE,95,TRUE,99
+395,"In 2016, a disease spread by mosquitos did not cause severe birth defects in babies born to infected mothers.",Negation,NO,,INSUFFICIENT INFO,,TRUE,95,FALSE,95,INSUFFICIENT INFO,
+396,"In 2016, no mosquito-borne disease caused birth defects.",Antonym,NO,,INSUFFICIENT INFO,,TRUE,95,INSUFFICIENT INFO,,FALSE,95
+397,Eating vegetables every day improves your health.,Affirmation,YES,ChatGPT,TRUE,95,TRUE,85,TRUE,95,INSUFFICIENT INFO,
+398,Eating vegetables every day does not improve your health.,Negation,NO,,FALSE,98,FALSE,99,FALSE,95,FALSE,99
+399,Eating vegetables every day harms your health.,Antonym,NO,,FALSE,99,FALSE,100,FALSE,99,FALSE,100
+400,Getting eight hours of sleep helps you concentrate.,Affirmation,YES,ChatGPT,TRUE,95,TRUE,85,TRUE,95,INSUFFICIENT INFO,
+401,Getting eight hours of sleep does not help you concentrate.,Negation,NO,,FALSE,95,FALSE,98,FALSE,95,INSUFFICIENT INFO,
+402,Getting eight hours of sleep makes it harder to concentrate.,Antonym,NO,,FALSE,95,INSUFFICIENT INFO,,FALSE,95,INSUFFICIENT INFO,
+403,Regular exercise increases your energy levels.,Affirmation,YES,ChatGPT,TRUE,95,TRUE,85,TRUE,95,TRUE,85
+404,Regular exercise does not increase your energy levels.,Negation,NO,,FALSE,95,FALSE,98,FALSE,95,FALSE,98
+405,Regular exercise decreases your energy levels.,Antonym,NO,,FALSE,95,FALSE,98,FALSE,95,FALSE,98
+406,Drinking water keeps you hydrated.,Affirmation,YES,ChatGPT,TRUE,100,TRUE,100,TRUE,100,TRUE,100
+407,Drinking water does not keep you hydrated.,Negation,NO,,FALSE,99,FALSE,100,FALSE,100,FALSE,100
+408,Drinking water dehydrates you.,Antonym,NO,,FALSE,99,FALSE,100,FALSE,100,FALSE,100
+409,Reading books improves your vocabulary.,Affirmation,YES,ChatGPT,TRUE,95,TRUE,98,TRUE,95,TRUE,85
+410,Reading books does not improve your vocabulary.,Negation,NO,,FALSE,95,FALSE,98,FALSE,95,FALSE,99
+411,Reading books reduces your vocabulary.,Antonym,NO,,FALSE,95,FALSE,98,FALSE,95,FALSE,99
+412,Coffee helps you stay awake.,Affirmation,YES,ChatGPT,TRUE,95,TRUE,98,TRUE,95,TRUE,85
+413,Coffee does not help you stay awake.,Negation,NO,,FALSE,95,FALSE,85,FALSE,95,FALSE,98
+414,Coffee makes you sleepy.,Antonym,NO,,FALSE,90,FALSE,95,FALSE,95,FALSE,99
+415,Sunscreen protects your skin from UV rays.,Affirmation,YES,ChatGPT,TRUE,100,TRUE,99,TRUE,99,TRUE,99
+416,Sunscreen does not protect your skin from UV rays.,Negation,NO,,FALSE,99,FALSE,100,FALSE,99,FALSE,100
+417,Sunscreen damages your skin or increases UV harm.,Antonym,NO,,FALSE,95,FALSE,98,FALSE,95,INSUFFICIENT INFO,
+418,Learning a new language improves cognitive flexibility.,Affirmation,YES,ChatGPT,TRUE,95,TRUE,98,TRUE,95,TRUE,85
+419,Learning a new language does not improve cognitive flexibility.,Negation,NO,,FALSE,90,FALSE,95,FALSE,95,FALSE,99
+420,Learning a new language reduces cognitive flexibility.,Antonym,NO,,FALSE,95,FALSE,98,FALSE,95,INSUFFICIENT INFO,
+421,Brushing your teeth prevents cavities.,Affirmation,YES,ChatGPT,FALSE,90,TRUE,85,FALSE,90,INSUFFICIENT INFO,
+422,Brushing your teeth does not prevent cavities.,Negation,NO,,FALSE,90,FALSE,95,FALSE,95,FALSE,98
+423,Brushing your teeth causes cavities.,Antonym,NO,,FALSE,98,FALSE,100,FALSE,99,FALSE,100
+424,Listening to music reduces stress.,Affirmation,YES,ChatGPT,TRUE,95,TRUE,85,INSUFFICIENT INFO,,TRUE,95
+425,Listening to music does not reduce stress.,Negation,NO,,FALSE,92,FALSE,98,FALSE,98,FALSE,99
+426,Listening to music increases stress.,Antonym,NO,,INSUFFICIENT INFO,,FALSE,95,FALSE,95,INSUFFICIENT INFO,

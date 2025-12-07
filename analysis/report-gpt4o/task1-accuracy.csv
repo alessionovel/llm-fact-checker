@@ -1,0 +1,16 @@
+"Scenario","Accuracy_Pct","Correct","Abstained","Total_Attempted"
+"Prompt 1 (Initial)","94.61%",351,55,371
+"Prompt 1 (Reconsidered)","93.62%",352,50,376
+"Prompt 2 (Initial)","93.89%",338,66,360
+"Prompt 2 (Reconsidered)","94.57%",348,58,368
+"---","",,,
+"Prompt 1 (Total Pooled)","94.11%",703,105,747
+"Prompt 2 (Total Pooled)","94.23%",686,124,728
+
+
+STATISTICAL SIGNIFICANCE (McNemar Tests)
+"Comparison","Diff_Pct","Chi_Sq","P_Value","Sig"
+"P1 Initial vs P2 Initial","+0.72%","0.000","1","No"
+"P1 Recons. vs P2 Recons.","-0.95%","1.500","0.2207","No"
+"P1 Recons. vs P1 Initial","-0.99%","0.167","0.6831","No"
+"P2 Recons. vs P2 Initial","+0.68%","0.167","0.6831","No"
