@@ -7,11 +7,11 @@
 
 
 --- CONFIDENCE BY STATEMENT TYPE ---
-"Scenario","Avg_Conf_Affirmation","Avg_Conf_antonym","Avg_Conf_Antonym","Avg_Conf_negation","Avg_Conf_Negation"
-"prompt1_initial","96.53","95.00","94.71","90.00","95.16"
-"prompt2_initial","96.67","95.00","94.34","90.00","96.21"
-"prompt1_reconsidered","96.37","99.00","97.91","NaN","97.41"
-"prompt2_reconsidered","97.52","98.00","98.89","95.00","99.06"
+"Scenario","Avg_Conf_affirmation","Avg_Conf_antonym","Avg_Conf_negation"
+"prompt1_initial","96.53","94.71","95.11"
+"prompt2_initial","96.67","94.35","96.17"
+"prompt1_reconsidered","96.37","97.92","97.41"
+"prompt2_reconsidered","97.52","98.88","99.02"
 
 
 --- CORRELATION: CONFIDENCE VS ACCURACY ---

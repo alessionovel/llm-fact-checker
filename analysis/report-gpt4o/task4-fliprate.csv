@@ -1,0 +1,10 @@
+--- OVERALL FLIP RATE ---
+"Scenario","Flip_Rate_Pct","Flipped_Cases","Stable_Cases","Abstained","Total_Cases"
+"Prompt 1","1.65%",6,357,63,363
+"Prompt 2","1.69%",6,349,71,355
+
+
+--- FLIP RATE BY STATEMENT TYPE ---
+"Scenario","Flip_Rate_affirmation","Flip_Rate_antonym","Flip_Rate_negation"
+"prompt1","3.33%","0.90%","0.76%"
+"prompt2","4.31%","0.00%","0.76%"

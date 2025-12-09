@@ -90,6 +90,11 @@ if("ground_truth" %in% names(results)) {
   warning("Column 'ground_truth' not found. Accuracy metrics will fail.")
 }
 
+# Normalize Statement Type (lowercase) to ensure consistency
+if("type" %in% names(results)) {
+  results$type <- tolower(trimws(results$type))
+}
+
 # ==========================================
 # 2. ACCURACY ANALYSIS (Binary correctness)
 # ==========================================
@@ -425,4 +430,83 @@ cat("\n\n--- CORRELATION: CONFIDENCE VS ACCURACY ---\n", file = conf_file, appen
 suppressWarnings(write.table(corr_results, file = conf_file, sep = ",", row.names = FALSE, append = TRUE))
 
 message("Saved confidence report to: ", conf_file)
+
+# ==========================================
+# 5. FLIP RATE ANALYSIS (Initial vs Reconsidered)
+# ==========================================
+message("--- Running Flip Rate Analysis ---")
+
+# Flip Rate: Percentage of cases where initial and reconsidered verdicts differ
+# Computed at triplet level (comparing same statement across prompts)
+
+# Prepare data for flip rate analysis
+results$triplet_id <- ceiling(seq_len(nrow(results)) / 3)
+
+# Function to check if two verdicts are different (flipped)
+check_flip <- function(initial_verdict, reconsidered_verdict) {
+  v_init <- normalize_bool(initial_verdict)
+  v_recon <- normalize_bool(reconsidered_verdict)
+  
+  # Return 1 if they differ (flipped), 0 if same, NA if either is INSUFFICIENT INFO
+  return(ifelse(v_init == "INSUFFICIENT INFO" | v_recon == "INSUFFICIENT INFO", NA,
+         ifelse(v_init != v_recon, 1, 0)))
+}
+
+# Calculate flip rates for each prompt
+results$flip_prompt1 <- check_flip(results$verdict_prompt1_initial, results$verdict_prompt1_reconsidered)
+results$flip_prompt2 <- check_flip(results$verdict_prompt2_initial, results$verdict_prompt2_reconsidered)
+
+# Aggregate flip rate by statement type
+calc_flip_stats <- function(col_data, label) {
+  flip_count <- sum(col_data == 1, na.rm = TRUE)
+  abstain_count <- sum(is.na(col_data))
+  valid_total <- sum(!is.na(col_data))
+  flip_rate <- if(valid_total > 0) mean(col_data, na.rm = TRUE) else NA
+  
+  return(data.frame(
+    Scenario = label,
+    Flip_Rate_Pct = sprintf("%.2f%%", flip_rate * 100),
+    Flipped_Cases = flip_count,
+    Stable_Cases = valid_total - flip_count,
+    Abstained = abstain_count,
+    Total_Cases = valid_total,
+    stringsAsFactors = FALSE
+  ))
+}
+
+flip_summary <- rbind(
+  calc_flip_stats(results$flip_prompt1, "Prompt 1"),
+  calc_flip_stats(results$flip_prompt2, "Prompt 2")
+)
+
+# Flip rate by statement type (within each prompt)
+flip_by_type <- data.frame()
+
+for(prompt in c("prompt1", "prompt2")) {
+  flip_col <- paste0("flip_", prompt)
+  
+  agg <- aggregate(
+    list(Flip_Rate = results[[flip_col]]),
+    by = list(Type = results$type),
+    FUN = function(x) mean(x, na.rm = TRUE)
+  )
+  
+  agg$Scenario <- prompt
+  agg$Flip_Rate <- sprintf("%.2f%%", agg$Flip_Rate * 100)
+  flip_by_type <- rbind(flip_by_type, agg)
+}
+
+# Reshape to wide format (Rows=Prompt, Cols=Type)
+flip_by_type_wide <- reshape(flip_by_type, idvar = "Scenario", timevar = "Type", direction = "wide", sep = "_")
+
+# Write Flip Rate Report
+fliprate_file <- file.path(output_dir, "task4-fliprate.csv")
+
+cat("--- OVERALL FLIP RATE ---\n", file = fliprate_file)
+suppressWarnings(write.table(flip_summary, file = fliprate_file, sep = ",", row.names = FALSE, append = TRUE))
+
+cat("\n\n--- FLIP RATE BY STATEMENT TYPE ---\n", file = fliprate_file, append = TRUE)
+suppressWarnings(write.table(flip_by_type_wide, file = fliprate_file, sep = ",", row.names = FALSE, append = TRUE))
+
+message("Saved flip rate report to: ", fliprate_file)
 message("All tasks complete.")
