@@ -163,7 +163,59 @@ Rscript run_analysis.R results-llama3.2.csv
 If you omit the argument, the script looks for `results.csv`, `results.rds`, or `example.csv` located in `analysis/`.
 
 ### What the script does
-- Cleans column names and normalizes verdicts/ground truth values.
-- Computes accuracy stats and McNemar tests; writes `task1-accuracy.csv` under `report-<model-name>/`.
-- Checks triplet consistency (affirmation vs. negation/antonym); writes `task2-consistency.csv` in the same report folder.
-- Aggregates confidence, confidence-by-type, and confidence-vs-accuracy correlations; writes `task3-confidence.csv`.
+
+The R script performs comprehensive statistical analysis and generates four detailed CSV reports in a `report-<model-name>/` directory:
+
+#### 1. Accuracy Analysis (`task1-accuracy.csv`)
+Evaluates binary correctness of model verdicts against ground truth:
+- **Accuracy percentages** for each scenario (Prompt 1/2, Initial/Reconsidered)
+- **Correct counts**: Number of correct predictions (excluding abstentions)
+- **Abstained counts**: Cases where model returned `INSUFFICIENT INFO`
+- **Total attempted**: Valid predictions (excluding abstentions)
+- **Overall pooled statistics**: Aggregate accuracy across all scenarios
+- **McNemar tests**: Statistical significance comparisons between:
+  - Prompt 1 vs Prompt 2 (Initial and Reconsidered)
+  - Initial vs Reconsidered (within each prompt)
+  - Includes chi-square values, p-values, and significance indicators
+
+#### 2. Consistency Analysis (`task2-consistency.csv`)
+Checks logical consistency across triplets (affirmation, negation, antonym):
+- **Affirmation vs Negation consistency**: Checks if these have opposite verdicts (or both abstained)
+- **Affirmation vs Antonym consistency**: Checks if these have opposite verdicts (or both abstained)
+- **Negation vs Antonym consistency**: Checks if these have the same verdict (or both abstained)
+- **Full Triplet consistency**: Checks if all three statements maintain logical coherence
+- For each consistency type:
+  - Consistency percentages by scenario
+  - Consistent triplet counts vs total triplets
+  - McNemar tests comparing prompts and reconsideration effects
+  - Statistical significance indicators (chi-square, p-values)
+
+#### 3. Confidence Analysis (`task3-confidence.csv`)
+Analyzes confidence scores and their relationship to accuracy:
+- **Overall average confidence**: Mean confidence scores for each scenario
+- **Confidence by correctness**: Separate averages for:
+  - Correct predictions
+  - Incorrect predictions
+  - Total statistics across all scenarios
+- **Confidence by statement type**: Average confidence for affirmation, negation, and antonym statements
+- **Correlation analysis**: Pearson correlation coefficients between confidence and accuracy
+  - Includes valid data point counts (excludes `INSUFFICIENT INFO` cases)
+  - Measures if higher confidence correlates with better accuracy
+
+#### 4. Flip Rate Analysis (`task4-fliprate.csv`)
+Measures verdict stability between initial and reconsidered responses:
+- **Overall flip rate**: Percentage of cases where verdicts changed (Initial → Reconsidered)
+- **Flip statistics**: For each prompt:
+  - Flip rate percentage
+  - Flipped cases count
+  - Stable cases count (no change)
+  - Abstained cases (where either verdict was `INSUFFICIENT INFO`)
+  - Total cases analyzed
+- **Flip rate by statement type**: Breakdown for affirmation, negation, and antonym
+- **Flip rate by initial correctness**: Separate analysis for:
+  - Initially correct answers (how often correct answers flip)
+  - Initially incorrect answers (how often incorrect answers flip)
+  - Helps identify if reconsideration improves or degrades accuracy
+
+### Output Structure
+All reports are saved in `analysis/report-<model-name>/` where `<model-name>` is extracted from the input filename (e.g., `results-llama3.2.csv` → `report-llama3.2/`).
