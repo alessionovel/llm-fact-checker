@@ -503,7 +503,43 @@ overall_conf <- rbind(
   calc_avg_conf("confidence_prompt2_reconsidered", "Prompt 2 (Reconsidered)")
 )
 
-# --- 4b. Confidence by Statement Type (Affirmation, Negation, Antonym) ---
+# --- 4b. Average Confidence by Correctness ---
+calc_avg_conf_correctness <- function(conf_col, acc_col, label) {
+  correct_conf <- mean(results[[conf_col]][results[[acc_col]] == 1], na.rm = TRUE)
+  incorrect_conf <- mean(results[[conf_col]][results[[acc_col]] == 0], na.rm = TRUE)
+  return(data.frame(Scenario = label, Avg_Correct_Confidence = sprintf("%.2f", correct_conf), Avg_Incorrect_Confidence = sprintf("%.2f", incorrect_conf)))
+}
+
+# Calculate average confidence by correctness
+avg_conf_correctness <- rbind(
+  calc_avg_conf_correctness("confidence_prompt1_initial", "acc_prompt1_initial", "Prompt 1 (Initial)"),
+  calc_avg_conf_correctness("confidence_prompt1_reconsidered", "acc_prompt1_reconsidered", "Prompt 1 (Reconsidered)"),
+  calc_avg_conf_correctness("confidence_prompt2_initial", "acc_prompt2_initial", "Prompt 2 (Initial)"),
+  calc_avg_conf_correctness("confidence_prompt2_reconsidered", "acc_prompt2_reconsidered", "Prompt 2 (Reconsidered)")
+)
+
+# Calculate total statistics across all scenarios
+all_correct_conf <- mean(c(
+  results$confidence_prompt1_initial[results$acc_prompt1_initial == 1],
+  results$confidence_prompt1_reconsidered[results$acc_prompt1_reconsidered == 1],
+  results$confidence_prompt2_initial[results$acc_prompt2_initial == 1],
+  results$confidence_prompt2_reconsidered[results$acc_prompt2_reconsidered == 1]
+), na.rm = TRUE)
+
+all_incorrect_conf <- mean(c(
+  results$confidence_prompt1_initial[results$acc_prompt1_initial == 0],
+  results$confidence_prompt1_reconsidered[results$acc_prompt1_reconsidered == 0],
+  results$confidence_prompt2_initial[results$acc_prompt2_initial == 0],
+  results$confidence_prompt2_reconsidered[results$acc_prompt2_reconsidered == 0]
+), na.rm = TRUE)
+
+avg_conf_correctness <- rbind(
+  avg_conf_correctness,
+  data.frame(Scenario = "---", Avg_Correct_Confidence = "", Avg_Incorrect_Confidence = ""),
+  data.frame(Scenario = "Total", Avg_Correct_Confidence = sprintf("%.2f", all_correct_conf), Avg_Incorrect_Confidence = sprintf("%.2f", all_incorrect_conf))
+)
+
+# --- 4c. Confidence by Statement Type (Affirmation, Negation, Antonym) ---
 conf_by_type <- data.frame()
 
 for(col in conf_cols) {
@@ -526,7 +562,7 @@ conf_by_type$Avg_Conf <- sprintf("%.2f", conf_by_type$Avg_Conf)
 # Reshape to wide format for easier reading (Rows=Scenario, Cols=Types)
 conf_by_type_wide <- reshape(conf_by_type, idvar="Scenario", timevar="Type", direction="wide", sep="_")
 
-# --- 4c. Correlation (Confidence vs Accuracy) ---
+# --- 4d. Correlation (Confidence vs Accuracy) ---
 # Correlation requires the accuracy columns computed in Step 2.
 # Using Point-Biserial Correlation (which is equivalent to Pearson when one var is binary).
 # We exclude 'NA' pairs (INSUFFICIENT INFO).
@@ -564,6 +600,9 @@ conf_file <- file.path(output_dir, "task3-confidence.csv")
 
 cat("--- OVERALL AVERAGE CONFIDENCE ---\n", file = conf_file)
 suppressWarnings(write.table(overall_conf, file = conf_file, sep = ",", row.names = FALSE, append = TRUE))
+
+cat("\n\n--- AVERAGE CONFIDENCE BY CORRECTNESS ---\n", file = conf_file, append = TRUE)
+suppressWarnings(write.table(avg_conf_correctness, file = conf_file, sep = ",", row.names = FALSE, append = TRUE))
 
 cat("\n\n--- CONFIDENCE BY STATEMENT TYPE ---\n", file = conf_file, append = TRUE)
 suppressWarnings(write.table(conf_by_type_wide, file = conf_file, sep = ",", row.names = FALSE, append = TRUE))
