@@ -8,3 +8,11 @@
 "Scenario","Flip_Rate_affirmation","Flip_Rate_antonym","Flip_Rate_negation"
 "prompt1","3.33%","0.90%","0.76%"
 "prompt2","4.31%","0.00%","0.76%"
+
+
+--- FLIP RATE BY INITIAL CORRECTNESS ---
+"Scenario","Flip_Rate_Pct","Flipped_Cases","Stable_Cases","Total_Cases"
+"Prompt 1 - Initially Correct","1.17%",4,339,343
+"Prompt 1 - Initially Incorrect","10.00%",2,18,20
+"Prompt 2 - Initially Correct","0.60%",2,332,334
+"Prompt 2 - Initially Incorrect","19.05%",4,17,21

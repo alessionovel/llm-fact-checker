@@ -6,6 +6,16 @@
 "Prompt 2 (Reconsidered)","98.49"
 
 
+--- AVERAGE CONFIDENCE BY CORRECTNESS ---
+"Scenario","Avg_Correct_Confidence","Avg_Incorrect_Confidence"
+"Prompt 1 (Initial)","95.52","95.00"
+"Prompt 1 (Reconsidered)","97.44","96.20"
+"Prompt 2 (Initial)","95.85","94.96"
+"Prompt 2 (Reconsidered)","98.62","97.80"
+"---","",""
+"Total","96.82","96.02"
+
+
 --- CONFIDENCE BY STATEMENT TYPE ---
 "Scenario","Avg_Conf_affirmation","Avg_Conf_antonym","Avg_Conf_negation"
 "prompt1_initial","96.53","94.71","95.11"

@@ -5,12 +5,26 @@
 "Prompt 2 (Initial)","61.27%",87,142
 "Prompt 2 (Reconsidered)","61.27%",87,142
 
+STATISTICAL SIGNIFICANCE (McNemar Tests)
+"Comparison","Diff_Pct","Chi_Sq","P_Value","Sig"
+"P1 Initial vs P2 Initial","+4.93%","1.714","0.1904","No"
+"P1 Recons. vs P2 Recons.","+2.82%","0.225","0.6353","No"
+"P1 Recons. vs P1 Initial","-2.11%","0.085","0.7705","No"
+"P2 Recons. vs P2 Initial","+0.00%","0.000","1","No"
+
 --- CONSISTENCY: AFFIRMATION VS ANTONYM ---
 "Scenario","Consistency_Pct","Consistent_Triplets","Total_Triplets"
 "Prompt 1 (Initial)","61.97%",88,142
 "Prompt 1 (Reconsidered)","69.01%",98,142
 "Prompt 2 (Initial)","56.34%",80,142
 "Prompt 2 (Reconsidered)","54.93%",78,142
+
+STATISTICAL SIGNIFICANCE (McNemar Tests)
+"Comparison","Diff_Pct","Chi_Sq","P_Value","Sig"
+"P1 Initial vs P2 Initial","+5.63%","2.227","0.1356","No"
+"P1 Recons. vs P2 Recons.","+14.08%","10.618","0.00112","Yes (*)"
+"P1 Recons. vs P1 Initial","+7.04%","1.558","0.212","No"
+"P2 Recons. vs P2 Initial","-1.41%","0.019","0.8897","No"
 
 --- CONSISTENCY: NEGATION VS ANTONYM ---
 "Scenario","Consistency_Pct","Consistent_Triplets","Total_Triplets"
@@ -19,9 +33,23 @@
 "Prompt 2 (Initial)","87.32%",124,142
 "Prompt 2 (Reconsidered)","69.01%",98,142
 
+STATISTICAL SIGNIFICANCE (McNemar Tests)
+"Comparison","Diff_Pct","Chi_Sq","P_Value","Sig"
+"P1 Initial vs P2 Initial","-7.04%","4.050","0.04417","Yes (*)"
+"P1 Recons. vs P2 Recons.","+2.82%","0.237","0.6265","No"
+"P1 Recons. vs P1 Initial","-8.45%","2.420","0.1198","No"
+"P2 Recons. vs P2 Initial","-18.31%","14.205","0.000164","Yes (*)"
+
 --- CONSISTENCY: TRIPLET (Affirmation VS Negation & Antonym) ---
 "Scenario","Consistency_Pct","Consistent_Triplets","Total_Triplets"
 "Prompt 1 (Initial)","56.34%",80,142
 "Prompt 1 (Reconsidered)","54.23%",77,142
 "Prompt 2 (Initial)","52.82%",75,142
 "Prompt 2 (Reconsidered)","43.66%",62,142
+
+STATISTICAL SIGNIFICANCE (McNemar Tests)
+"Comparison","Diff_Pct","Chi_Sq","P_Value","Sig"
+"P1 Initial vs P2 Initial","+3.52%","0.941","0.332","No"
+"P1 Recons. vs P2 Recons.","+10.56%","5.600","0.01796","Yes (*)"
+"P1 Recons. vs P1 Initial","-2.11%","0.075","0.7835","No"
+"P2 Recons. vs P2 Initial","-9.15%","3.064","0.08005","No"

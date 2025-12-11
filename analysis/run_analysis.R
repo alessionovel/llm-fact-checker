@@ -680,6 +680,61 @@ for(prompt in c("prompt1", "prompt2")) {
 # Reshape to wide format (Rows=Prompt, Cols=Type)
 flip_by_type_wide <- reshape(flip_by_type, idvar = "Scenario", timevar = "Type", direction = "wide", sep = "_")
 
+# --- Flip rate by correctness (Initial answers that were correct vs incorrect) ---
+flip_by_correctness <- data.frame()
+
+# Prompt 1
+correct_flip_p1 <- mean(results$flip_prompt1[results$acc_prompt1_initial == 1], na.rm = TRUE)
+incorrect_flip_p1 <- mean(results$flip_prompt1[results$acc_prompt1_initial == 0], na.rm = TRUE)
+correct_count_p1 <- sum(results$flip_prompt1[results$acc_prompt1_initial == 1] == 1, na.rm = TRUE)
+incorrect_count_p1 <- sum(results$flip_prompt1[results$acc_prompt1_initial == 0] == 1, na.rm = TRUE)
+correct_valid_p1 <- sum(!is.na(results$flip_prompt1[results$acc_prompt1_initial == 1]))
+incorrect_valid_p1 <- sum(!is.na(results$flip_prompt1[results$acc_prompt1_initial == 0]))
+
+flip_by_correctness <- rbind(flip_by_correctness, data.frame(
+  Scenario = "Prompt 1 - Initially Correct",
+  Flip_Rate_Pct = sprintf("%.2f%%", correct_flip_p1 * 100),
+  Flipped_Cases = correct_count_p1,
+  Stable_Cases = correct_valid_p1 - correct_count_p1,
+  Total_Cases = correct_valid_p1,
+  stringsAsFactors = FALSE
+))
+
+flip_by_correctness <- rbind(flip_by_correctness, data.frame(
+  Scenario = "Prompt 1 - Initially Incorrect",
+  Flip_Rate_Pct = sprintf("%.2f%%", incorrect_flip_p1 * 100),
+  Flipped_Cases = incorrect_count_p1,
+  Stable_Cases = incorrect_valid_p1 - incorrect_count_p1,
+  Total_Cases = incorrect_valid_p1,
+  stringsAsFactors = FALSE
+))
+
+# Prompt 2
+correct_flip_p2 <- mean(results$flip_prompt2[results$acc_prompt2_initial == 1], na.rm = TRUE)
+incorrect_flip_p2 <- mean(results$flip_prompt2[results$acc_prompt2_initial == 0], na.rm = TRUE)
+correct_count_p2 <- sum(results$flip_prompt2[results$acc_prompt2_initial == 1] == 1, na.rm = TRUE)
+incorrect_count_p2 <- sum(results$flip_prompt2[results$acc_prompt2_initial == 0] == 1, na.rm = TRUE)
+correct_valid_p2 <- sum(!is.na(results$flip_prompt2[results$acc_prompt2_initial == 1]))
+incorrect_valid_p2 <- sum(!is.na(results$flip_prompt2[results$acc_prompt2_initial == 0]))
+
+flip_by_correctness <- rbind(flip_by_correctness, data.frame(
+  Scenario = "Prompt 2 - Initially Correct",
+  Flip_Rate_Pct = sprintf("%.2f%%", correct_flip_p2 * 100),
+  Flipped_Cases = correct_count_p2,
+  Stable_Cases = correct_valid_p2 - correct_count_p2,
+  Total_Cases = correct_valid_p2,
+  stringsAsFactors = FALSE
+))
+
+flip_by_correctness <- rbind(flip_by_correctness, data.frame(
+  Scenario = "Prompt 2 - Initially Incorrect",
+  Flip_Rate_Pct = sprintf("%.2f%%", incorrect_flip_p2 * 100),
+  Flipped_Cases = incorrect_count_p2,
+  Stable_Cases = incorrect_valid_p2 - incorrect_count_p2,
+  Total_Cases = incorrect_valid_p2,
+  stringsAsFactors = FALSE
+))
+
 # Write Flip Rate Report
 fliprate_file <- file.path(output_dir, "task4-fliprate.csv")
 
@@ -688,6 +743,9 @@ suppressWarnings(write.table(flip_summary, file = fliprate_file, sep = ",", row.
 
 cat("\n\n--- FLIP RATE BY STATEMENT TYPE ---\n", file = fliprate_file, append = TRUE)
 suppressWarnings(write.table(flip_by_type_wide, file = fliprate_file, sep = ",", row.names = FALSE, append = TRUE))
+
+cat("\n\n--- FLIP RATE BY INITIAL CORRECTNESS ---\n", file = fliprate_file, append = TRUE)
+suppressWarnings(write.table(flip_by_correctness, file = fliprate_file, sep = ",", row.names = FALSE, append = TRUE))
 
 message("Saved flip rate report to: ", fliprate_file)
 message("All tasks complete.")
