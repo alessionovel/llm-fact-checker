@@ -232,7 +232,7 @@ df_wide <- reshape(
   sep = "_"
 )
 
-# Function to check logical consistency
+# Function to check logical consistency (opposite verdicts)
 check_pair_consistency <- function(main_verdict, comp_verdict) {
   v1 <- normalize_bool(main_verdict)
   v2 <- normalize_bool(comp_verdict)
@@ -254,17 +254,88 @@ check_pair_consistency <- function(main_verdict, comp_verdict) {
   return(consistent)
 }
 
+# Function to check if verdicts are the same (for negation vs antonym)
+check_same_consistency <- function(verdict1, verdict2) {
+  v1 <- normalize_bool(verdict1)
+  v2 <- normalize_bool(verdict2)
+  
+  # If both are INSUFFICIENT INFO, consider it consistent (both abstained coherently)
+  both_insufficient <- (v1 == "INSUFFICIENT INFO" & v2 == "INSUFFICIENT INFO")
+  
+  # Logic: (v1 == v2) -> 1 (Consistent), else 0
+  consistent <- ifelse(
+    both_insufficient,
+    1,  # Both insufficient = consistent abstention
+    ifelse(v1 == v2, 1, 0)
+  )
+  consistent[is.na(consistent)] <- 0  # If only one is insufficient = inconsistent
+  return(consistent)
+}
+
+# Function to check triplet consistency (affirmation, negation, antonym)
+# Negation and Antonym should be opposite of Affirmation, or all should be INSUFFICIENT INFO
+check_triplet_consistency <- function(aff_verdict, neg_verdict, ant_verdict) {
+  v_aff <- normalize_bool(aff_verdict)
+  v_neg <- normalize_bool(neg_verdict)
+  v_ant <- normalize_bool(ant_verdict)
+  
+  # If all three are INSUFFICIENT INFO, consistent
+  all_insufficient <- (v_aff == "INSUFFICIENT INFO" & v_neg == "INSUFFICIENT INFO" & v_ant == "INSUFFICIENT INFO")
+  
+  # Check if any are insufficient (but not all)
+  any_insufficient <- (v_aff == "INSUFFICIENT INFO" | v_neg == "INSUFFICIENT INFO" | v_ant == "INSUFFICIENT INFO")
+  
+  # Logic: Check if negation and antonym are opposite of affirmation
+  # If Aff=T, then Neg and Ant should both be F
+  # If Aff=F, then Neg and Ant should both be T
+  opposite_check <- ifelse(
+    v_aff == "TRUE",
+    (v_neg == "FALSE" & v_ant == "FALSE"),
+    ifelse(
+      v_aff == "FALSE",
+      (v_neg == "TRUE" & v_ant == "TRUE"),
+      FALSE
+    )
+  )
+  
+  consistent <- ifelse(
+    all_insufficient,
+    1,  # All insufficient = consistent abstention
+    ifelse(
+      any_insufficient,
+      0,  # Some insufficient but not all = inconsistent
+      ifelse(opposite_check, 1, 0)
+    )
+  )
+  consistent[is.na(consistent)] <- 0
+  return(consistent)
+}
+
 metrics_df <- data.frame(triplet_id = df_wide$triplet_id)
 
 # Loop through verdict columns to calculate consistency metrics
-# Only checking consistency between affirmation and negation
+# Checking consistency between: (1) Affirmation vs Negation (opposite), (2) Affirmation vs Antonym (opposite), 
+# (3) Negation vs Antonym (same), (4) Triplet (Aff, Neg, Ant should all be consistent)
 for (v_col in verdict_cols) {
   col_aff <- paste0(v_col, "_affirmation")
   col_neg <- paste0(v_col, "_negation")
+  col_ant <- paste0(v_col, "_antonym")
   
-  # Consistency (Affirmation vs Negation only)
-  metric_name <- paste0("consist_", v_col)
-  metrics_df[[metric_name]] <- check_pair_consistency(df_wide[[col_aff]], df_wide[[col_neg]])
+  # Consistency: Affirmation vs Negation (should be opposite)
+  metric_name_an <- paste0("consist_", v_col, "_aff_neg")
+  metrics_df[[metric_name_an]] <- check_pair_consistency(df_wide[[col_aff]], df_wide[[col_neg]])
+  
+  # Consistency: Affirmation vs Antonym (should be opposite)
+  metric_name_aa <- paste0("consist_", v_col, "_aff_ant")
+  metrics_df[[metric_name_aa]] <- check_pair_consistency(df_wide[[col_aff]], df_wide[[col_ant]])
+  
+  # Consistency: Negation vs Antonym (should be same)
+  metric_name_na <- paste0("consist_", v_col, "_neg_ant")
+  metrics_df[[metric_name_na]] <- check_same_consistency(df_wide[[col_neg]], df_wide[[col_ant]])
+  
+  # Consistency: Triplet (Aff, Neg, Ant all consistent)
+  metric_name_triplet <- paste0("consist_", v_col, "_triplet")
+  metrics_df[[metric_name_triplet]] <- check_triplet_consistency(df_wide[[col_aff]], df_wide[[col_neg]], df_wide[[col_ant]])
 }
 
 # -- Report Generation: Consistency --
@@ -282,20 +353,52 @@ calc_consist_stats <- function(col_data, label) {
   ))
 }
 
-# Generate summary table (Affirmation vs Negation only)
-summary_consistency <- rbind(
-  calc_consist_stats(metrics_df$consist_verdict_prompt1_initial, "Prompt 1 (Initial)"),
-  calc_consist_stats(metrics_df$consist_verdict_prompt1_reconsidered, "Prompt 1 (Reconsidered)"),
-  calc_consist_stats(metrics_df$consist_verdict_prompt2_initial, "Prompt 2 (Initial)"),
-  calc_consist_stats(metrics_df$consist_verdict_prompt2_reconsidered, "Prompt 2 (Reconsidered)")
+# Generate summary tables grouped by consistency type
+aff_neg_table <- rbind(
+  calc_consist_stats(metrics_df$consist_verdict_prompt1_initial_aff_neg, "Prompt 1 (Initial)"),
+  calc_consist_stats(metrics_df$consist_verdict_prompt1_reconsidered_aff_neg, "Prompt 1 (Reconsidered)"),
+  calc_consist_stats(metrics_df$consist_verdict_prompt2_initial_aff_neg, "Prompt 2 (Initial)"),
+  calc_consist_stats(metrics_df$consist_verdict_prompt2_reconsidered_aff_neg, "Prompt 2 (Reconsidered)")
+)
+
+aff_ant_table <- rbind(
+  calc_consist_stats(metrics_df$consist_verdict_prompt1_initial_aff_ant, "Prompt 1 (Initial)"),
+  calc_consist_stats(metrics_df$consist_verdict_prompt1_reconsidered_aff_ant, "Prompt 1 (Reconsidered)"),
+  calc_consist_stats(metrics_df$consist_verdict_prompt2_initial_aff_ant, "Prompt 2 (Initial)"),
+  calc_consist_stats(metrics_df$consist_verdict_prompt2_reconsidered_aff_ant, "Prompt 2 (Reconsidered)")
+)
+
+neg_ant_table <- rbind(
+  calc_consist_stats(metrics_df$consist_verdict_prompt1_initial_neg_ant, "Prompt 1 (Initial)"),
+  calc_consist_stats(metrics_df$consist_verdict_prompt1_reconsidered_neg_ant, "Prompt 1 (Reconsidered)"),
+  calc_consist_stats(metrics_df$consist_verdict_prompt2_initial_neg_ant, "Prompt 2 (Initial)"),
+  calc_consist_stats(metrics_df$consist_verdict_prompt2_reconsidered_neg_ant, "Prompt 2 (Reconsidered)")
+)
+
+triplet_table <- rbind(
+  calc_consist_stats(metrics_df$consist_verdict_prompt1_initial_triplet, "Prompt 1 (Initial)"),
+  calc_consist_stats(metrics_df$consist_verdict_prompt1_reconsidered_triplet, "Prompt 1 (Reconsidered)"),
+  calc_consist_stats(metrics_df$consist_verdict_prompt2_initial_triplet, "Prompt 2 (Initial)"),
+  calc_consist_stats(metrics_df$consist_verdict_prompt2_reconsidered_triplet, "Prompt 2 (Reconsidered)")
 )
 
 # Write Consistency Report
 consist_file <- file.path(output_dir, "task2-consistency.csv")
 
-write.table("--- CONSISTENCY (Affirmation vs Negation) ---", file = consist_file, sep = ",", row.names = FALSE, col.names = FALSE, append = FALSE)
+cat("--- CONSISTENCY: AFFIRMATION VS NEGATION ---\n", file = consist_file, append = FALSE)
+suppressWarnings(write.table(aff_neg_table, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+cat("\n", file = consist_file, append = TRUE)
 
-suppressWarnings(write.table(summary_consistency, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+cat("--- CONSISTENCY: AFFIRMATION VS ANTONYM ---\n", file = consist_file, append = TRUE)
+suppressWarnings(write.table(aff_ant_table, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+cat("\n", file = consist_file, append = TRUE)
+
+cat("--- CONSISTENCY: NEGATION VS ANTONYM ---\n", file = consist_file, append = TRUE)
+suppressWarnings(write.table(neg_ant_table, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+cat("\n", file = consist_file, append = TRUE)
+
+cat("--- CONSISTENCY: TRIPLET (Affirmation VS Negation & Antonym) ---\n", file = consist_file, append = TRUE)
+suppressWarnings(write.table(triplet_table, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
 
 message("Saved consistency report to: ", consist_file)
 

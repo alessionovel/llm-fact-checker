@@ -1,6 +1,27 @@
-"--- CONSISTENCY (Affirmation vs Negation) ---"
+--- CONSISTENCY: AFFIRMATION VS NEGATION ---
 "Scenario","Consistency_Pct","Consistent_Triplets","Total_Triplets"
 "Prompt 1 (Initial)","83.10%",118,142
 "Prompt 1 (Reconsidered)","89.44%",127,142
 "Prompt 2 (Initial)","79.58%",113,142
 "Prompt 2 (Reconsidered)","86.62%",123,142
+
+--- CONSISTENCY: AFFIRMATION VS ANTONYM ---
+"Scenario","Consistency_Pct","Consistent_Triplets","Total_Triplets"
+"Prompt 1 (Initial)","75.35%",107,142
+"Prompt 1 (Reconsidered)","69.72%",99,142
+"Prompt 2 (Initial)","71.83%",102,142
+"Prompt 2 (Reconsidered)","70.42%",100,142
+
+--- CONSISTENCY: NEGATION VS ANTONYM ---
+"Scenario","Consistency_Pct","Consistent_Triplets","Total_Triplets"
+"Prompt 1 (Initial)","76.06%",108,142
+"Prompt 1 (Reconsidered)","73.94%",105,142
+"Prompt 2 (Initial)","73.94%",105,142
+"Prompt 2 (Reconsidered)","73.94%",105,142
+
+--- CONSISTENCY: TRIPLET (Affirmation VS Negation & Antonym) ---
+"Scenario","Consistency_Pct","Consistent_Triplets","Total_Triplets"
+"Prompt 1 (Initial)","67.61%",96,142
+"Prompt 1 (Reconsidered)","66.90%",95,142
+"Prompt 2 (Initial)","62.68%",89,142
+"Prompt 2 (Reconsidered)","66.20%",94,142
