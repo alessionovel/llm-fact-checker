@@ -157,13 +157,11 @@ acc_summary <- rbind(
 )
 
 # Pooled stats
-pool_p1 <- c(results$acc_prompt1_initial, results$acc_prompt1_reconsidered)
-pool_p2 <- c(results$acc_prompt2_initial, results$acc_prompt2_reconsidered)
+pool_total <- c(results$acc_prompt1_initial, results$acc_prompt1_reconsidered, results$acc_prompt2_initial, results$acc_prompt2_reconsidered)
 
 acc_summary <- rbind(acc_summary,
   data.frame(Scenario = "---", Accuracy_Pct="", Correct=NA, Abstained=NA, Total_Attempted=NA),
-  calc_acc_stats(pool_p1, "Prompt 1 (Total Pooled)"),
-  calc_acc_stats(pool_p2, "Prompt 2 (Total Pooled)")
+  calc_acc_stats(pool_total, "Overall Total")
 )
 
 # -- Report Generation: McNemar --
@@ -175,6 +173,8 @@ run_mcnemar <- function(vec1, vec2, label) {
     p_val <- test$p.value
     chi <- test$statistic
     df <- test$parameter
+    # Clamp p-value to valid range [0, 1] to handle numerical precision issues
+    p_val <- pmax(0, pmin(1, p_val))
   } else {
     p_val <- NA; chi <- NA; df <- NA
   }
@@ -382,23 +382,87 @@ triplet_table <- rbind(
   calc_consist_stats(metrics_df$consist_verdict_prompt2_reconsidered_triplet, "Prompt 2 (Reconsidered)")
 )
 
+# -- Report Generation: Statistical Significance (McNemar Tests) --
+run_mcnemar_consist <- function(vec1, vec2, label) {
+  tbl <- table(factor(vec1, levels=c(0,1)), factor(vec2, levels=c(0,1)))
+  # Handle cases with zero variance to avoid crash
+  if(all(dim(tbl) == c(2,2))) {
+    test <- mcnemar.test(tbl)
+    p_val <- test$p.value
+    chi <- test$statistic
+    df <- test$parameter
+    # Clamp p-value to valid range [0, 1] to handle numerical precision issues
+    p_val <- pmax(0, pmin(1, p_val))
+  } else {
+    p_val <- NA; chi <- NA; df <- NA
+  }
+  
+  diff_pct <- (mean(vec1, na.rm=TRUE) - mean(vec2, na.rm=TRUE)) * 100
+  
+  return(data.frame(
+    Comparison = label,
+    Diff_Pct = sprintf("%+.2f%%", diff_pct),
+    Chi_Sq = ifelse(is.na(chi), "NA", sprintf("%.3f", chi)),
+    P_Value = ifelse(is.na(p_val), "NA", sprintf("%.4g", p_val)),
+    Sig = ifelse(!is.na(p_val) & p_val < 0.05, "Yes (*)", "No"),
+    stringsAsFactors = FALSE
+  ))
+}
+
+# Generate McNemar tables for each consistency type
+mcnemar_aff_neg <- rbind(
+  run_mcnemar_consist(metrics_df$consist_verdict_prompt1_initial_aff_neg, metrics_df$consist_verdict_prompt2_initial_aff_neg, "P1 Initial vs P2 Initial"),
+  run_mcnemar_consist(metrics_df$consist_verdict_prompt1_reconsidered_aff_neg, metrics_df$consist_verdict_prompt2_reconsidered_aff_neg, "P1 Recons. vs P2 Recons."),
+  run_mcnemar_consist(metrics_df$consist_verdict_prompt1_reconsidered_aff_neg, metrics_df$consist_verdict_prompt1_initial_aff_neg, "P1 Recons. vs P1 Initial"),
+  run_mcnemar_consist(metrics_df$consist_verdict_prompt2_reconsidered_aff_neg, metrics_df$consist_verdict_prompt2_initial_aff_neg, "P2 Recons. vs P2 Initial")
+)
+
+mcnemar_aff_ant <- rbind(
+  run_mcnemar_consist(metrics_df$consist_verdict_prompt1_initial_aff_ant, metrics_df$consist_verdict_prompt2_initial_aff_ant, "P1 Initial vs P2 Initial"),
+  run_mcnemar_consist(metrics_df$consist_verdict_prompt1_reconsidered_aff_ant, metrics_df$consist_verdict_prompt2_reconsidered_aff_ant, "P1 Recons. vs P2 Recons."),
+  run_mcnemar_consist(metrics_df$consist_verdict_prompt1_reconsidered_aff_ant, metrics_df$consist_verdict_prompt1_initial_aff_ant, "P1 Recons. vs P1 Initial"),
+  run_mcnemar_consist(metrics_df$consist_verdict_prompt2_reconsidered_aff_ant, metrics_df$consist_verdict_prompt2_initial_aff_ant, "P2 Recons. vs P2 Initial")
+)
+
+mcnemar_neg_ant <- rbind(
+  run_mcnemar_consist(metrics_df$consist_verdict_prompt1_initial_neg_ant, metrics_df$consist_verdict_prompt2_initial_neg_ant, "P1 Initial vs P2 Initial"),
+  run_mcnemar_consist(metrics_df$consist_verdict_prompt1_reconsidered_neg_ant, metrics_df$consist_verdict_prompt2_reconsidered_neg_ant, "P1 Recons. vs P2 Recons."),
+  run_mcnemar_consist(metrics_df$consist_verdict_prompt1_reconsidered_neg_ant, metrics_df$consist_verdict_prompt1_initial_neg_ant, "P1 Recons. vs P1 Initial"),
+  run_mcnemar_consist(metrics_df$consist_verdict_prompt2_reconsidered_neg_ant, metrics_df$consist_verdict_prompt2_initial_neg_ant, "P2 Recons. vs P2 Initial")
+)
+
+mcnemar_triplet <- rbind(
+  run_mcnemar_consist(metrics_df$consist_verdict_prompt1_initial_triplet, metrics_df$consist_verdict_prompt2_initial_triplet, "P1 Initial vs P2 Initial"),
+  run_mcnemar_consist(metrics_df$consist_verdict_prompt1_reconsidered_triplet, metrics_df$consist_verdict_prompt2_reconsidered_triplet, "P1 Recons. vs P2 Recons."),
+  run_mcnemar_consist(metrics_df$consist_verdict_prompt1_reconsidered_triplet, metrics_df$consist_verdict_prompt1_initial_triplet, "P1 Recons. vs P1 Initial"),
+  run_mcnemar_consist(metrics_df$consist_verdict_prompt2_reconsidered_triplet, metrics_df$consist_verdict_prompt2_initial_triplet, "P2 Recons. vs P2 Initial")
+)
+
 # Write Consistency Report
 consist_file <- file.path(output_dir, "task2-consistency.csv")
 
 cat("--- CONSISTENCY: AFFIRMATION VS NEGATION ---\n", file = consist_file, append = FALSE)
 suppressWarnings(write.table(aff_neg_table, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+cat("\nSTATISTICAL SIGNIFICANCE (McNemar Tests)\n", file = consist_file, append = TRUE)
+suppressWarnings(write.table(mcnemar_aff_neg, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
 cat("\n", file = consist_file, append = TRUE)
 
 cat("--- CONSISTENCY: AFFIRMATION VS ANTONYM ---\n", file = consist_file, append = TRUE)
 suppressWarnings(write.table(aff_ant_table, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+cat("\nSTATISTICAL SIGNIFICANCE (McNemar Tests)\n", file = consist_file, append = TRUE)
+suppressWarnings(write.table(mcnemar_aff_ant, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
 cat("\n", file = consist_file, append = TRUE)
 
 cat("--- CONSISTENCY: NEGATION VS ANTONYM ---\n", file = consist_file, append = TRUE)
 suppressWarnings(write.table(neg_ant_table, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+cat("\nSTATISTICAL SIGNIFICANCE (McNemar Tests)\n", file = consist_file, append = TRUE)
+suppressWarnings(write.table(mcnemar_neg_ant, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
 cat("\n", file = consist_file, append = TRUE)
 
 cat("--- CONSISTENCY: TRIPLET (Affirmation VS Negation & Antonym) ---\n", file = consist_file, append = TRUE)
 suppressWarnings(write.table(triplet_table, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+cat("\nSTATISTICAL SIGNIFICANCE (McNemar Tests)\n", file = consist_file, append = TRUE)
+suppressWarnings(write.table(mcnemar_triplet, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
 
 message("Saved consistency report to: ", consist_file)
 
