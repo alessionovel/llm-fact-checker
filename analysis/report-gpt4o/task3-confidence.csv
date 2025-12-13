@@ -1,21 +1,21 @@
 --- OVERALL AVERAGE CONFIDENCE ---
-"Scenario","Avg_Confidence","Variance_Confidence"
+"Scenario","Avg_Confidence","StdDev_Confidence"
 "Prompt 1 (Initial)","97.05",""
 "Prompt 1 (Reconsidered)","96.94",""
 "Prompt 2 (Initial)","98.07",""
 "Prompt 2 (Reconsidered)","97.96",""
 "---","",""
-"Total","97.50","13.78"
+"Total","97.50","3.71"
 
 
 --- AVERAGE CONFIDENCE BY CORRECTNESS ---
-"Scenario","Avg_Correct_Confidence","Avg_Incorrect_Confidence","Var_Correct_Confidence","Var_Incorrect_Confidence"
+"Scenario","Avg_Correct_Confidence","Avg_Incorrect_Confidence","StdDev_Correct_Confidence","StdDev_Incorrect_Confidence"
 "Prompt 1 (Initial)","97.17","95.00","",""
 "Prompt 1 (Reconsidered)","97.14","93.96","",""
 "Prompt 2 (Initial)","98.22","95.68","",""
 "Prompt 2 (Reconsidered)","98.07","96.00","",""
 "---","","","",""
-"Total","97.65","95.12","13.08","19.40"
+"Total","97.65","95.12","3.62","4.40"
 
 
 --- CONFIDENCE BY STATEMENT TYPE ---

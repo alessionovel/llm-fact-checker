@@ -361,11 +361,53 @@ aff_neg_table <- rbind(
   calc_consist_stats(metrics_df$consist_verdict_prompt2_reconsidered_aff_neg, "Prompt 2 (Reconsidered)")
 )
 
+# Add pooled consistency (Initial, Reconsidered, Overall)
+aff_neg_table <- rbind(
+  aff_neg_table,
+  data.frame(Scenario = "---", Consistency_Pct = "", Consistent_Triplets = NA, Total_Triplets = NA, stringsAsFactors = FALSE),
+  calc_consist_stats(
+    c(metrics_df$consist_verdict_prompt1_initial_aff_neg, metrics_df$consist_verdict_prompt2_initial_aff_neg),
+    "Initial (P1+P2)"
+  ),
+  calc_consist_stats(
+    c(metrics_df$consist_verdict_prompt1_reconsidered_aff_neg, metrics_df$consist_verdict_prompt2_reconsidered_aff_neg),
+    "Reconsidered (P1+P2)"
+  ),
+  calc_consist_stats(
+    c(metrics_df$consist_verdict_prompt1_initial_aff_neg,
+      metrics_df$consist_verdict_prompt2_initial_aff_neg,
+      metrics_df$consist_verdict_prompt1_reconsidered_aff_neg,
+      metrics_df$consist_verdict_prompt2_reconsidered_aff_neg),
+    "Overall Total"
+  )
+)
+
 aff_ant_table <- rbind(
   calc_consist_stats(metrics_df$consist_verdict_prompt1_initial_aff_ant, "Prompt 1 (Initial)"),
   calc_consist_stats(metrics_df$consist_verdict_prompt1_reconsidered_aff_ant, "Prompt 1 (Reconsidered)"),
   calc_consist_stats(metrics_df$consist_verdict_prompt2_initial_aff_ant, "Prompt 2 (Initial)"),
   calc_consist_stats(metrics_df$consist_verdict_prompt2_reconsidered_aff_ant, "Prompt 2 (Reconsidered)")
+)
+
+# Add pooled consistency (Initial, Reconsidered, Overall)
+aff_ant_table <- rbind(
+  aff_ant_table,
+  data.frame(Scenario = "---", Consistency_Pct = "", Consistent_Triplets = NA, Total_Triplets = NA, stringsAsFactors = FALSE),
+  calc_consist_stats(
+    c(metrics_df$consist_verdict_prompt1_initial_aff_ant, metrics_df$consist_verdict_prompt2_initial_aff_ant),
+    "Initial (P1+P2)"
+  ),
+  calc_consist_stats(
+    c(metrics_df$consist_verdict_prompt1_reconsidered_aff_ant, metrics_df$consist_verdict_prompt2_reconsidered_aff_ant),
+    "Reconsidered (P1+P2)"
+  ),
+  calc_consist_stats(
+    c(metrics_df$consist_verdict_prompt1_initial_aff_ant,
+      metrics_df$consist_verdict_prompt2_initial_aff_ant,
+      metrics_df$consist_verdict_prompt1_reconsidered_aff_ant,
+      metrics_df$consist_verdict_prompt2_reconsidered_aff_ant),
+    "Overall Total"
+  )
 )
 
 neg_ant_table <- rbind(
@@ -375,11 +417,53 @@ neg_ant_table <- rbind(
   calc_consist_stats(metrics_df$consist_verdict_prompt2_reconsidered_neg_ant, "Prompt 2 (Reconsidered)")
 )
 
+# Add pooled consistency (Initial, Reconsidered, Overall)
+neg_ant_table <- rbind(
+  neg_ant_table,
+  data.frame(Scenario = "---", Consistency_Pct = "", Consistent_Triplets = NA, Total_Triplets = NA, stringsAsFactors = FALSE),
+  calc_consist_stats(
+    c(metrics_df$consist_verdict_prompt1_initial_neg_ant, metrics_df$consist_verdict_prompt2_initial_neg_ant),
+    "Initial (P1+P2)"
+  ),
+  calc_consist_stats(
+    c(metrics_df$consist_verdict_prompt1_reconsidered_neg_ant, metrics_df$consist_verdict_prompt2_reconsidered_neg_ant),
+    "Reconsidered (P1+P2)"
+  ),
+  calc_consist_stats(
+    c(metrics_df$consist_verdict_prompt1_initial_neg_ant,
+      metrics_df$consist_verdict_prompt2_initial_neg_ant,
+      metrics_df$consist_verdict_prompt1_reconsidered_neg_ant,
+      metrics_df$consist_verdict_prompt2_reconsidered_neg_ant),
+    "Overall Total"
+  )
+)
+
 triplet_table <- rbind(
   calc_consist_stats(metrics_df$consist_verdict_prompt1_initial_triplet, "Prompt 1 (Initial)"),
   calc_consist_stats(metrics_df$consist_verdict_prompt1_reconsidered_triplet, "Prompt 1 (Reconsidered)"),
   calc_consist_stats(metrics_df$consist_verdict_prompt2_initial_triplet, "Prompt 2 (Initial)"),
   calc_consist_stats(metrics_df$consist_verdict_prompt2_reconsidered_triplet, "Prompt 2 (Reconsidered)")
+)
+
+# Add pooled consistency (Initial, Reconsidered, Overall)
+triplet_table <- rbind(
+  triplet_table,
+  data.frame(Scenario = "---", Consistency_Pct = "", Consistent_Triplets = NA, Total_Triplets = NA, stringsAsFactors = FALSE),
+  calc_consist_stats(
+    c(metrics_df$consist_verdict_prompt1_initial_triplet, metrics_df$consist_verdict_prompt2_initial_triplet),
+    "Initial (P1+P2)"
+  ),
+  calc_consist_stats(
+    c(metrics_df$consist_verdict_prompt1_reconsidered_triplet, metrics_df$consist_verdict_prompt2_reconsidered_triplet),
+    "Reconsidered (P1+P2)"
+  ),
+  calc_consist_stats(
+    c(metrics_df$consist_verdict_prompt1_initial_triplet,
+      metrics_df$consist_verdict_prompt2_initial_triplet,
+      metrics_df$consist_verdict_prompt1_reconsidered_triplet,
+      metrics_df$consist_verdict_prompt2_reconsidered_triplet),
+    "Overall Total"
+  )
 )
 
 # -- Report Generation: Statistical Significance (McNemar Tests) --
@@ -442,27 +526,27 @@ mcnemar_triplet <- rbind(
 consist_file <- file.path(output_dir, "task2-consistency.csv")
 
 cat("--- CONSISTENCY: AFFIRMATION VS NEGATION ---\n", file = consist_file, append = FALSE)
-suppressWarnings(write.table(aff_neg_table, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+suppressWarnings(write.table(aff_neg_table, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE, na = ""))
 cat("\nSTATISTICAL SIGNIFICANCE (McNemar Tests)\n", file = consist_file, append = TRUE)
-suppressWarnings(write.table(mcnemar_aff_neg, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+suppressWarnings(write.table(mcnemar_aff_neg, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE, na = ""))
 cat("\n", file = consist_file, append = TRUE)
 
 cat("--- CONSISTENCY: AFFIRMATION VS ANTONYM ---\n", file = consist_file, append = TRUE)
-suppressWarnings(write.table(aff_ant_table, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+suppressWarnings(write.table(aff_ant_table, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE, na = ""))
 cat("\nSTATISTICAL SIGNIFICANCE (McNemar Tests)\n", file = consist_file, append = TRUE)
-suppressWarnings(write.table(mcnemar_aff_ant, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+suppressWarnings(write.table(mcnemar_aff_ant, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE, na = ""))
 cat("\n", file = consist_file, append = TRUE)
 
 cat("--- CONSISTENCY: NEGATION VS ANTONYM ---\n", file = consist_file, append = TRUE)
-suppressWarnings(write.table(neg_ant_table, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+suppressWarnings(write.table(neg_ant_table, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE, na = ""))
 cat("\nSTATISTICAL SIGNIFICANCE (McNemar Tests)\n", file = consist_file, append = TRUE)
-suppressWarnings(write.table(mcnemar_neg_ant, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+suppressWarnings(write.table(mcnemar_neg_ant, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE, na = ""))
 cat("\n", file = consist_file, append = TRUE)
 
 cat("--- CONSISTENCY: TRIPLET (Affirmation VS Negation & Antonym) ---\n", file = consist_file, append = TRUE)
-suppressWarnings(write.table(triplet_table, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+suppressWarnings(write.table(triplet_table, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE, na = ""))
 cat("\nSTATISTICAL SIGNIFICANCE (McNemar Tests)\n", file = consist_file, append = TRUE)
-suppressWarnings(write.table(mcnemar_triplet, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE))
+suppressWarnings(write.table(mcnemar_triplet, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE, na = ""))
 
 message("Saved consistency report to: ", consist_file)
 
@@ -511,7 +595,7 @@ all_conf_total <- c(
   results$confidence_prompt2_reconsidered
 )
 total_all_conf <- mean(all_conf_total, na.rm = TRUE)
-total_all_conf_var <- var(all_conf_total, na.rm = TRUE)
+total_all_conf_sd <- sd(all_conf_total, na.rm = TRUE)
 
 overall_conf <- rbind(
   overall_conf,
@@ -519,9 +603,9 @@ overall_conf <- rbind(
   data.frame(Scenario = "Total", Avg_Confidence = sprintf("%.2f", total_all_conf))
 )
 
-# Add Variance column to overall_conf
-overall_conf$Variance_Confidence <- ""
-overall_conf$Variance_Confidence[nrow(overall_conf)] <- sprintf("%.2f", total_all_conf_var)
+# Add Standard Deviation column to overall_conf
+overall_conf$StdDev_Confidence <- ""
+overall_conf$StdDev_Confidence[nrow(overall_conf)] <- sprintf("%.2f", total_all_conf_sd)
 
 # --- 4b. Average Confidence by Correctness ---
 calc_avg_conf_correctness <- function(conf_col, acc_col, label) {
@@ -546,7 +630,7 @@ all_correct_conf_vec <- c(
   results$confidence_prompt2_reconsidered[results$acc_prompt2_reconsidered == 1]
 )
 all_correct_conf <- mean(all_correct_conf_vec, na.rm = TRUE)
-all_correct_conf_var <- var(all_correct_conf_vec, na.rm = TRUE)
+all_correct_conf_sd <- sd(all_correct_conf_vec, na.rm = TRUE)
 
 all_incorrect_conf_vec <- c(
   results$confidence_prompt1_initial[results$acc_prompt1_initial == 0],
@@ -555,7 +639,7 @@ all_incorrect_conf_vec <- c(
   results$confidence_prompt2_reconsidered[results$acc_prompt2_reconsidered == 0]
 )
 all_incorrect_conf <- mean(all_incorrect_conf_vec, na.rm = TRUE)
-all_incorrect_conf_var <- var(all_incorrect_conf_vec, na.rm = TRUE)
+all_incorrect_conf_sd <- sd(all_incorrect_conf_vec, na.rm = TRUE)
 
 avg_conf_correctness <- rbind(
   avg_conf_correctness,
@@ -563,11 +647,11 @@ avg_conf_correctness <- rbind(
   data.frame(Scenario = "Total", Avg_Correct_Confidence = sprintf("%.2f", all_correct_conf), Avg_Incorrect_Confidence = sprintf("%.2f", all_incorrect_conf))
 )
 
-# Add Variance columns
-avg_conf_correctness$Var_Correct_Confidence <- ""
-avg_conf_correctness$Var_Incorrect_Confidence <- ""
-avg_conf_correctness$Var_Correct_Confidence[nrow(avg_conf_correctness)] <- sprintf("%.2f", all_correct_conf_var)
-avg_conf_correctness$Var_Incorrect_Confidence[nrow(avg_conf_correctness)] <- sprintf("%.2f", all_incorrect_conf_var)
+# Add Standard Deviation columns
+avg_conf_correctness$StdDev_Correct_Confidence <- ""
+avg_conf_correctness$StdDev_Incorrect_Confidence <- ""
+avg_conf_correctness$StdDev_Correct_Confidence[nrow(avg_conf_correctness)] <- sprintf("%.2f", all_correct_conf_sd)
+avg_conf_correctness$StdDev_Incorrect_Confidence[nrow(avg_conf_correctness)] <- sprintf("%.2f", all_incorrect_conf_sd)
 
 # --- 4c. Confidence by Statement Type (Affirmation, Negation, Antonym) ---
 conf_by_type <- data.frame()

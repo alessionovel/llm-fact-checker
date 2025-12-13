@@ -4,6 +4,10 @@
 "Prompt 1 (Reconsidered)","89.44%",127,142
 "Prompt 2 (Initial)","79.58%",113,142
 "Prompt 2 (Reconsidered)","86.62%",123,142
+"---","",,
+"Initial (P1+P2)","81.34%",231,284
+"Reconsidered (P1+P2)","88.03%",250,284
+"Overall Total","84.68%",481,568
 
 STATISTICAL SIGNIFICANCE (McNemar Tests)
 "Comparison","Diff_Pct","Chi_Sq","P_Value","Sig"
@@ -18,6 +22,10 @@ STATISTICAL SIGNIFICANCE (McNemar Tests)
 "Prompt 1 (Reconsidered)","69.72%",99,142
 "Prompt 2 (Initial)","71.83%",102,142
 "Prompt 2 (Reconsidered)","70.42%",100,142
+"---","",,
+"Initial (P1+P2)","73.59%",209,284
+"Reconsidered (P1+P2)","70.07%",199,284
+"Overall Total","71.83%",408,568
 
 STATISTICAL SIGNIFICANCE (McNemar Tests)
 "Comparison","Diff_Pct","Chi_Sq","P_Value","Sig"
@@ -32,6 +40,10 @@ STATISTICAL SIGNIFICANCE (McNemar Tests)
 "Prompt 1 (Reconsidered)","73.94%",105,142
 "Prompt 2 (Initial)","73.94%",105,142
 "Prompt 2 (Reconsidered)","73.94%",105,142
+"---","",,
+"Initial (P1+P2)","75.00%",213,284
+"Reconsidered (P1+P2)","73.94%",210,284
+"Overall Total","74.47%",423,568
 
 STATISTICAL SIGNIFICANCE (McNemar Tests)
 "Comparison","Diff_Pct","Chi_Sq","P_Value","Sig"
@@ -46,6 +58,10 @@ STATISTICAL SIGNIFICANCE (McNemar Tests)
 "Prompt 1 (Reconsidered)","66.90%",95,142
 "Prompt 2 (Initial)","62.68%",89,142
 "Prompt 2 (Reconsidered)","66.20%",94,142
+"---","",,
+"Initial (P1+P2)","65.14%",185,284
+"Reconsidered (P1+P2)","66.55%",189,284
+"Overall Total","65.85%",374,568
 
 STATISTICAL SIGNIFICANCE (McNemar Tests)
 "Comparison","Diff_Pct","Chi_Sq","P_Value","Sig"
