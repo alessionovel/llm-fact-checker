@@ -676,6 +676,30 @@ conf_by_type$Avg_Conf <- sprintf("%.2f", conf_by_type$Avg_Conf)
 # Reshape to wide format for easier reading (Rows=Scenario, Cols=Types)
 conf_by_type_wide <- reshape(conf_by_type, idvar="Scenario", timevar="Type", direction="wide", sep="_")
 
+# Add total confidence across all prompts by statement type
+types_unique <- unique(results$type)
+if (length(types_unique) > 0) {
+  total_row <- data.frame(Scenario = "Total")
+  for (t in types_unique) {
+    stacked_vals <- c(
+      results$confidence_prompt1_initial[results$type == t],
+      results$confidence_prompt1_reconsidered[results$type == t],
+      results$confidence_prompt2_initial[results$type == t],
+      results$confidence_prompt2_reconsidered[results$type == t]
+    )
+    mean_val <- mean(stacked_vals, na.rm = TRUE)
+    col_name <- paste0("Avg_Conf_", t)
+    total_row[[col_name]] <- sprintf("%.2f", mean_val)
+  }
+  # Ensure missing type columns are present with empty strings to align rbind
+  for (cn in setdiff(names(conf_by_type_wide), names(total_row))) {
+    total_row[[cn]] <- ""
+  }
+  # Align column order
+  total_row <- total_row[names(conf_by_type_wide)]
+  conf_by_type_wide <- rbind(conf_by_type_wide, total_row)
+}
+
 # --- 4d. Correlation (Confidence vs Accuracy) ---
 # Correlation requires the accuracy columns computed in Step 2.
 # Using Point-Biserial Correlation (which is equivalent to Pearson when one var is binary).
