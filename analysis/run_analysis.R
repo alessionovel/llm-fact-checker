@@ -504,18 +504,24 @@ overall_conf <- rbind(
 )
 
 # Add total average confidence across all scenarios
-total_all_conf <- mean(c(
+all_conf_total <- c(
   results$confidence_prompt1_initial,
   results$confidence_prompt1_reconsidered,
   results$confidence_prompt2_initial,
   results$confidence_prompt2_reconsidered
-), na.rm = TRUE)
+)
+total_all_conf <- mean(all_conf_total, na.rm = TRUE)
+total_all_conf_var <- var(all_conf_total, na.rm = TRUE)
 
 overall_conf <- rbind(
   overall_conf,
   data.frame(Scenario = "---", Avg_Confidence = ""),
   data.frame(Scenario = "Total", Avg_Confidence = sprintf("%.2f", total_all_conf))
 )
+
+# Add Variance column to overall_conf
+overall_conf$Variance_Confidence <- ""
+overall_conf$Variance_Confidence[nrow(overall_conf)] <- sprintf("%.2f", total_all_conf_var)
 
 # --- 4b. Average Confidence by Correctness ---
 calc_avg_conf_correctness <- function(conf_col, acc_col, label) {
@@ -533,25 +539,35 @@ avg_conf_correctness <- rbind(
 )
 
 # Calculate total statistics across all scenarios
-all_correct_conf <- mean(c(
+all_correct_conf_vec <- c(
   results$confidence_prompt1_initial[results$acc_prompt1_initial == 1],
   results$confidence_prompt1_reconsidered[results$acc_prompt1_reconsidered == 1],
   results$confidence_prompt2_initial[results$acc_prompt2_initial == 1],
   results$confidence_prompt2_reconsidered[results$acc_prompt2_reconsidered == 1]
-), na.rm = TRUE)
+)
+all_correct_conf <- mean(all_correct_conf_vec, na.rm = TRUE)
+all_correct_conf_var <- var(all_correct_conf_vec, na.rm = TRUE)
 
-all_incorrect_conf <- mean(c(
+all_incorrect_conf_vec <- c(
   results$confidence_prompt1_initial[results$acc_prompt1_initial == 0],
   results$confidence_prompt1_reconsidered[results$acc_prompt1_reconsidered == 0],
   results$confidence_prompt2_initial[results$acc_prompt2_initial == 0],
   results$confidence_prompt2_reconsidered[results$acc_prompt2_reconsidered == 0]
-), na.rm = TRUE)
+)
+all_incorrect_conf <- mean(all_incorrect_conf_vec, na.rm = TRUE)
+all_incorrect_conf_var <- var(all_incorrect_conf_vec, na.rm = TRUE)
 
 avg_conf_correctness <- rbind(
   avg_conf_correctness,
   data.frame(Scenario = "---", Avg_Correct_Confidence = "", Avg_Incorrect_Confidence = ""),
   data.frame(Scenario = "Total", Avg_Correct_Confidence = sprintf("%.2f", all_correct_conf), Avg_Incorrect_Confidence = sprintf("%.2f", all_incorrect_conf))
 )
+
+# Add Variance columns
+avg_conf_correctness$Var_Correct_Confidence <- ""
+avg_conf_correctness$Var_Incorrect_Confidence <- ""
+avg_conf_correctness$Var_Correct_Confidence[nrow(avg_conf_correctness)] <- sprintf("%.2f", all_correct_conf_var)
+avg_conf_correctness$Var_Incorrect_Confidence[nrow(avg_conf_correctness)] <- sprintf("%.2f", all_incorrect_conf_var)
 
 # --- 4c. Confidence by Statement Type (Affirmation, Negation, Antonym) ---
 conf_by_type <- data.frame()
@@ -608,6 +624,34 @@ for(c_col in names(acc_map)) {
     ))
   }
 }
+
+# Calculate total correlation across all scenarios
+all_conf <- c(
+  results$confidence_prompt1_initial,
+  results$confidence_prompt1_reconsidered,
+  results$confidence_prompt2_initial,
+  results$confidence_prompt2_reconsidered
+)
+
+all_acc <- c(
+  results$acc_prompt1_initial,
+  results$acc_prompt1_reconsidered,
+  results$acc_prompt2_initial,
+  results$acc_prompt2_reconsidered
+)
+
+total_cor_val <- cor(all_conf, all_acc, use = "complete.obs", method = "pearson")
+total_valid_pairs <- sum(!is.na(all_conf) & !is.na(all_acc))
+
+corr_results <- rbind(
+  corr_results,
+  data.frame(Scenario = "---", Correlation_Coef = "", Valid_Data_Points = ""),
+  data.frame(
+    Scenario = "Total",
+    Correlation_Coef = sprintf("%.4f", total_cor_val),
+    Valid_Data_Points = total_valid_pairs
+  )
+)
 
 # Write Confidence Report
 conf_file <- file.path(output_dir, "task3-confidence.csv")

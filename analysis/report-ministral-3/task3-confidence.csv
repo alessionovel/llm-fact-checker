@@ -1,21 +1,21 @@
 --- OVERALL AVERAGE CONFIDENCE ---
-"Scenario","Avg_Confidence"
-"Prompt 1 (Initial)","95.45"
-"Prompt 1 (Reconsidered)","97.25"
-"Prompt 2 (Initial)","95.73"
-"Prompt 2 (Reconsidered)","98.49"
-"---",""
-"Total","96.70"
+"Scenario","Avg_Confidence","Variance_Confidence"
+"Prompt 1 (Initial)","95.45",""
+"Prompt 1 (Reconsidered)","97.25",""
+"Prompt 2 (Initial)","95.73",""
+"Prompt 2 (Reconsidered)","98.49",""
+"---","",""
+"Total","96.70","27.78"
 
 
 --- AVERAGE CONFIDENCE BY CORRECTNESS ---
-"Scenario","Avg_Correct_Confidence","Avg_Incorrect_Confidence"
-"Prompt 1 (Initial)","95.52","95.00"
-"Prompt 1 (Reconsidered)","97.44","96.20"
-"Prompt 2 (Initial)","95.85","94.96"
-"Prompt 2 (Reconsidered)","98.62","97.80"
-"---","",""
-"Total","96.82","96.02"
+"Scenario","Avg_Correct_Confidence","Avg_Incorrect_Confidence","Var_Correct_Confidence","Var_Incorrect_Confidence"
+"Prompt 1 (Initial)","95.52","95.00","",""
+"Prompt 1 (Reconsidered)","97.44","96.20","",""
+"Prompt 2 (Initial)","95.85","94.96","",""
+"Prompt 2 (Reconsidered)","98.62","97.80","",""
+"---","","","",""
+"Total","96.82","96.02","30.76","9.79"
 
 
 --- CONFIDENCE BY STATEMENT TYPE ---
@@ -28,7 +28,9 @@
 
 --- CORRELATION: CONFIDENCE VS ACCURACY ---
 "Scenario","Correlation_Coef","Valid_Data_Points"
-"prompt1_initial","0.0607",363
-"prompt2_initial","0.0426",393
-"prompt1_reconsidered","0.0786",383
-"prompt2_reconsidered","0.1100",354
+"prompt1_initial","0.0607","363"
+"prompt2_initial","0.0426","393"
+"prompt1_reconsidered","0.0786","383"
+"prompt2_reconsidered","0.1100","354"
+"---","",""
+"Total","0.0537","1493"
