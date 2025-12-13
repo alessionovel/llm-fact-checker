@@ -503,6 +503,20 @@ overall_conf <- rbind(
   calc_avg_conf("confidence_prompt2_reconsidered", "Prompt 2 (Reconsidered)")
 )
 
+# Add total average confidence across all scenarios
+total_all_conf <- mean(c(
+  results$confidence_prompt1_initial,
+  results$confidence_prompt1_reconsidered,
+  results$confidence_prompt2_initial,
+  results$confidence_prompt2_reconsidered
+), na.rm = TRUE)
+
+overall_conf <- rbind(
+  overall_conf,
+  data.frame(Scenario = "---", Avg_Confidence = ""),
+  data.frame(Scenario = "Total", Avg_Confidence = sprintf("%.2f", total_all_conf))
+)
+
 # --- 4b. Average Confidence by Correctness ---
 calc_avg_conf_correctness <- function(conf_col, acc_col, label) {
   correct_conf <- mean(results[[conf_col]][results[[acc_col]] == 1], na.rm = TRUE)
