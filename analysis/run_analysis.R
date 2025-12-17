@@ -121,14 +121,34 @@ check_accuracy <- function(truth, verdict) {
          ifelse(truth == v_norm, 1, 0)))
 }
 
+# Check error types: FALSE POSITIVES (verdict TRUE but truth FALSE) and FALSE NEGATIVES (verdict FALSE but truth TRUE)
+check_error_type <- function(truth, verdict) {
+  v_norm <- normalize_bool(verdict)
+  
+  # Return:
+  # "FP" = False Positive (verdict TRUE but truth FALSE)
+  # "FN" = False Negative (verdict FALSE but truth TRUE)
+  # NA = Abstained or Correct
+  
+  return(ifelse(v_norm == "INSUFFICIENT INFO", NA, 
+         ifelse(truth == "FALSE" & v_norm == "TRUE", "FP",
+         ifelse(truth == "TRUE" & v_norm == "FALSE", "FN", NA))))
+}
+
 # Generate Accuracy Columns
 results$acc_prompt1_initial <- check_accuracy(results$ground_truth, results$verdict_prompt1_initial)
 results$acc_prompt2_initial <- check_accuracy(results$ground_truth, results$verdict_prompt2_initial)
 results$acc_prompt1_reconsidered <- check_accuracy(results$ground_truth, results$verdict_prompt1_reconsidered)
 results$acc_prompt2_reconsidered <- check_accuracy(results$ground_truth, results$verdict_prompt2_reconsidered)
 
+# Generate Error Type Columns
+results$err_prompt1_initial <- check_error_type(results$ground_truth, results$verdict_prompt1_initial)
+results$err_prompt2_initial <- check_error_type(results$ground_truth, results$verdict_prompt2_initial)
+results$err_prompt1_reconsidered <- check_error_type(results$ground_truth, results$verdict_prompt1_reconsidered)
+results$err_prompt2_reconsidered <- check_error_type(results$ground_truth, results$verdict_prompt2_reconsidered)
+
 # -- Report Generation: Stats --
-calc_acc_stats <- function(col_data, label) {
+calc_acc_stats <- function(col_data, err_data, label) {
   # Count abstentions (NAs)
   abstained_count <- sum(is.na(col_data))
   
@@ -139,29 +159,36 @@ calc_acc_stats <- function(col_data, label) {
   # Total valid attempts (excluding abstentions)
   valid_total <- sum(!is.na(col_data))
   
+  # Count False Positives and False Negatives
+  fp_count <- sum(err_data == "FP", na.rm = TRUE)
+  fn_count <- sum(err_data == "FN", na.rm = TRUE)
+  
   return(data.frame(
     Scenario = label,
     Accuracy_Pct = sprintf("%.2f%%", mean_acc * 100),
     Correct = correct_count,
-    Abstained = abstained_count,     # <--- New Column
-    Total_Attempted = valid_total,   # <--- Renamed for clarity
+    False_Positives = fp_count,      # Verdict TRUE but truth FALSE
+    False_Negatives = fn_count,      # Verdict FALSE but truth TRUE
+    Abstained = abstained_count,
+    Total_Attempted = valid_total,
     stringsAsFactors = FALSE
   ))
 }
 
 acc_summary <- rbind(
-  calc_acc_stats(results$acc_prompt1_initial,      "Prompt 1 (Initial)"),
-  calc_acc_stats(results$acc_prompt1_reconsidered, "Prompt 1 (Reconsidered)"),
-  calc_acc_stats(results$acc_prompt2_initial,      "Prompt 2 (Initial)"),
-  calc_acc_stats(results$acc_prompt2_reconsidered, "Prompt 2 (Reconsidered)")
+  calc_acc_stats(results$acc_prompt1_initial,      results$err_prompt1_initial,      "Prompt 1 (Initial)"),
+  calc_acc_stats(results$acc_prompt1_reconsidered, results$err_prompt1_reconsidered, "Prompt 1 (Reconsidered)"),
+  calc_acc_stats(results$acc_prompt2_initial,      results$err_prompt2_initial,      "Prompt 2 (Initial)"),
+  calc_acc_stats(results$acc_prompt2_reconsidered, results$err_prompt2_reconsidered, "Prompt 2 (Reconsidered)")
 )
 
 # Pooled stats
 pool_total <- c(results$acc_prompt1_initial, results$acc_prompt1_reconsidered, results$acc_prompt2_initial, results$acc_prompt2_reconsidered)
+pool_errors <- c(results$err_prompt1_initial, results$err_prompt1_reconsidered, results$err_prompt2_initial, results$err_prompt2_reconsidered)
 
 acc_summary <- rbind(acc_summary,
-  data.frame(Scenario = "---", Accuracy_Pct="", Correct=NA, Abstained=NA, Total_Attempted=NA),
-  calc_acc_stats(pool_total, "Overall Total")
+  data.frame(Scenario = "---", Accuracy_Pct="", Correct=NA, False_Positives=NA, False_Negatives=NA, Abstained=NA, Total_Attempted=NA),
+  calc_acc_stats(pool_total, pool_errors, "Overall Total")
 )
 
 # -- Report Generation: McNemar --

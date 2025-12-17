@@ -1,10 +1,10 @@
-"Scenario","Accuracy_Pct","Correct","Abstained","Total_Attempted"
-"Prompt 1 (Initial)","87.33%",317,63,363
-"Prompt 1 (Reconsidered)","84.33%",323,43,383
-"Prompt 2 (Initial)","85.50%",336,33,393
-"Prompt 2 (Reconsidered)","84.79%",301,71,355
-"---","",,,
-"Overall Total","85.48%",1277,210,1494
+"Scenario","Accuracy_Pct","Correct","False_Positives","False_Negatives","Abstained","Total_Attempted"
+"Prompt 1 (Initial)","87.33%",317,10,36,63,363
+"Prompt 1 (Reconsidered)","84.33%",323,44,16,43,383
+"Prompt 2 (Initial)","85.50%",336,10,47,33,393
+"Prompt 2 (Reconsidered)","84.79%",301,33,21,71,355
+"---","",,,,,
+"Overall Total","85.48%",1277,97,120,210,1494
 
 
 STATISTICAL SIGNIFICANCE (McNemar Tests)
