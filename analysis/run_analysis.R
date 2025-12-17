@@ -551,6 +551,224 @@ suppressWarnings(write.table(mcnemar_triplet, file = consist_file, sep = ",", ro
 message("Saved consistency report to: ", consist_file)
 
 # ==========================================
+# 3b. NEGATION INCONSISTENCY PATTERN ANALYSIS
+# ==========================================
+message("--- Running Negation Inconsistency Pattern Analysis ---")
+
+# For inconsistent cases (where affirmation and negation are the SAME),
+# check if they're both TRUE or both FALSE to identify systematic patterns
+# Also track cases where one is INSUFFICIENT INFO and the other is not
+
+check_inconsistency_pattern <- function(aff_verdict, neg_verdict) {
+  v_aff <- normalize_bool(aff_verdict)
+  v_neg <- normalize_bool(neg_verdict)
+  
+  # Return pattern type:
+  # "Both TRUE" if both are TRUE (inconsistent)
+  # "Both FALSE" if both are FALSE (inconsistent)
+  # "One Insufficient" if one is INSUFFICIENT INFO and the other is not (inconsistent)
+  # "Consistent" if they are opposite (consistent)
+  
+  aff_insufficient <- (v_aff == "INSUFFICIENT INFO")
+  neg_insufficient <- (v_neg == "INSUFFICIENT INFO")
+  
+  pattern <- ifelse(
+    aff_insufficient & neg_insufficient,
+    "Both Insufficient",
+    ifelse(
+      aff_insufficient | neg_insufficient,
+      "One Insufficient",
+      ifelse(
+        v_aff == "TRUE" & v_neg == "TRUE",
+        "Both TRUE",
+        ifelse(
+          v_aff == "FALSE" & v_neg == "FALSE",
+          "Both FALSE",
+          "Consistent"
+        )
+      )
+    )
+  )
+  
+  return(pattern)
+}
+
+# Create pattern columns for each verdict scenario
+for (v_col in verdict_cols) {
+  col_aff <- paste0(v_col, "_affirmation")
+  col_neg <- paste0(v_col, "_negation")
+  
+  pattern_col_name <- paste0("inconsist_pattern_", v_col)
+  df_wide[[pattern_col_name]] <- check_inconsistency_pattern(df_wide[[col_aff]], df_wide[[col_neg]])
+}
+
+# Calculate statistics for inconsistency patterns
+calc_pattern_stats <- function(pattern_col, label) {
+  pattern_data <- df_wide[[pattern_col]]
+  
+  both_true_count <- sum(pattern_data == "Both TRUE", na.rm = TRUE)
+  both_false_count <- sum(pattern_data == "Both FALSE", na.rm = TRUE)
+  one_insufficient_count <- sum(pattern_data == "One Insufficient", na.rm = TRUE)
+  both_insufficient_count <- sum(pattern_data == "Both Insufficient", na.rm = TRUE)
+  consistent_count <- sum(pattern_data == "Consistent", na.rm = TRUE)
+  total_valid <- length(pattern_data)
+  total_inconsistent <- both_true_count + both_false_count + one_insufficient_count
+  
+  both_true_pct <- if(total_inconsistent > 0) (both_true_count / total_inconsistent) * 100 else 0
+  both_false_pct <- if(total_inconsistent > 0) (both_false_count / total_inconsistent) * 100 else 0
+  one_insufficient_pct <- if(total_inconsistent > 0) (one_insufficient_count / total_inconsistent) * 100 else 0
+  inconsistent_pct <- if(total_valid > 0) (total_inconsistent / total_valid) * 100 else 0
+  
+  return(data.frame(
+    Scenario = label,
+    Total_Inconsistent = total_inconsistent,
+    Both_TRUE_Count = both_true_count,
+    Both_FALSE_Count = both_false_count,
+    One_Insufficient_Count = one_insufficient_count,
+    Both_TRUE_Pct = sprintf("%.2f%%", both_true_pct),
+    Both_FALSE_Pct = sprintf("%.2f%%", both_false_pct),
+    One_Insufficient_Pct = sprintf("%.2f%%", one_insufficient_pct),
+    Inconsistency_Rate = sprintf("%.2f%%", inconsistent_pct),
+    Consistent_Count = consistent_count,
+    Both_Insufficient_Count = both_insufficient_count,
+    stringsAsFactors = FALSE
+  ))
+}
+
+# Generate pattern statistics table
+pattern_stats <- rbind(
+  calc_pattern_stats("inconsist_pattern_verdict_prompt1_initial", "Prompt 1 (Initial)"),
+  calc_pattern_stats("inconsist_pattern_verdict_prompt1_reconsidered", "Prompt 1 (Reconsidered)"),
+  calc_pattern_stats("inconsist_pattern_verdict_prompt2_initial", "Prompt 2 (Initial)"),
+  calc_pattern_stats("inconsist_pattern_verdict_prompt2_reconsidered", "Prompt 2 (Reconsidered)")
+)
+
+# Calculate pooled statistics
+all_patterns <- c(
+  df_wide$inconsist_pattern_verdict_prompt1_initial,
+  df_wide$inconsist_pattern_verdict_prompt1_reconsidered,
+  df_wide$inconsist_pattern_verdict_prompt2_initial,
+  df_wide$inconsist_pattern_verdict_prompt2_reconsidered
+)
+
+total_both_true <- sum(all_patterns == "Both TRUE", na.rm = TRUE)
+total_both_false <- sum(all_patterns == "Both FALSE", na.rm = TRUE)
+total_one_insufficient <- sum(all_patterns == "One Insufficient", na.rm = TRUE)
+total_both_insufficient <- sum(all_patterns == "Both Insufficient", na.rm = TRUE)
+total_consistent <- sum(all_patterns == "Consistent", na.rm = TRUE)
+total_inconsistent_all <- total_both_true + total_both_false + total_one_insufficient
+total_valid_all <- length(all_patterns)
+
+pattern_stats <- rbind(
+  pattern_stats,
+  data.frame(
+    Scenario = "---",
+    Total_Inconsistent = NA,
+    Both_TRUE_Count = NA,
+    Both_FALSE_Count = NA,
+    One_Insufficient_Count = NA,
+    Both_TRUE_Pct = "",
+    Both_FALSE_Pct = "",
+    One_Insufficient_Pct = "",
+    Inconsistency_Rate = "",
+    Consistent_Count = NA,
+    Both_Insufficient_Count = NA,
+    stringsAsFactors = FALSE
+  ),
+  data.frame(
+    Scenario = "Overall Total",
+    Total_Inconsistent = total_inconsistent_all,
+    Both_TRUE_Count = total_both_true,
+    Both_FALSE_Count = total_both_false,
+    One_Insufficient_Count = total_one_insufficient,
+    Both_TRUE_Pct = sprintf("%.2f%%", (total_both_true / total_inconsistent_all) * 100),
+    Both_FALSE_Pct = sprintf("%.2f%%", (total_both_false / total_inconsistent_all) * 100),
+    One_Insufficient_Pct = sprintf("%.2f%%", (total_one_insufficient / total_inconsistent_all) * 100),
+    Inconsistency_Rate = sprintf("%.2f%%", (total_inconsistent_all / total_valid_all) * 100),
+    Consistent_Count = total_consistent,
+    Both_Insufficient_Count = total_both_insufficient,
+    stringsAsFactors = FALSE
+  )
+)
+
+# Statistical test: Chi-square test to check if "Both TRUE" vs "Both FALSE" differs significantly
+# H0: No difference in proportion of "Both TRUE" vs "Both FALSE" inconsistencies
+# Using binomial test for each scenario and overall
+
+run_binomial_test <- function(both_true_count, both_false_count, label) {
+  total <- both_true_count + both_false_count
+  
+  if(total == 0) {
+    return(data.frame(
+      Scenario = label,
+      Both_TRUE = both_true_count,
+      Both_FALSE = both_false_count,
+      P_Value = "NA",
+      Sig = "NA",
+      stringsAsFactors = FALSE
+    ))
+  }
+  
+  # Binomial test (H0: p = 0.5, equal probability of both patterns)
+  test <- binom.test(both_true_count, total, p = 0.5)
+  p_val <- test$p.value
+  
+  return(data.frame(
+    Scenario = label,
+    Both_TRUE = both_true_count,
+    Both_FALSE = both_false_count,
+    P_Value = sprintf("%.4g", p_val),
+    Sig = ifelse(p_val < 0.05, "Yes (*)", "No"),
+    stringsAsFactors = FALSE
+  ))
+}
+
+# Run binomial tests
+binom_tests <- rbind(
+  run_binomial_test(
+    sum(df_wide$inconsist_pattern_verdict_prompt1_initial == "Both TRUE", na.rm = TRUE),
+    sum(df_wide$inconsist_pattern_verdict_prompt1_initial == "Both FALSE", na.rm = TRUE),
+    "Prompt 1 (Initial)"
+  ),
+  run_binomial_test(
+    sum(df_wide$inconsist_pattern_verdict_prompt1_reconsidered == "Both TRUE", na.rm = TRUE),
+    sum(df_wide$inconsist_pattern_verdict_prompt1_reconsidered == "Both FALSE", na.rm = TRUE),
+    "Prompt 1 (Reconsidered)"
+  ),
+  run_binomial_test(
+    sum(df_wide$inconsist_pattern_verdict_prompt2_initial == "Both TRUE", na.rm = TRUE),
+    sum(df_wide$inconsist_pattern_verdict_prompt2_initial == "Both FALSE", na.rm = TRUE),
+    "Prompt 2 (Initial)"
+  ),
+  run_binomial_test(
+    sum(df_wide$inconsist_pattern_verdict_prompt2_reconsidered == "Both TRUE", na.rm = TRUE),
+    sum(df_wide$inconsist_pattern_verdict_prompt2_reconsidered == "Both FALSE", na.rm = TRUE),
+    "Prompt 2 (Reconsidered)"
+  ),
+  data.frame(
+    Scenario = "---",
+    Both_TRUE = NA,
+    Both_FALSE = NA,
+    P_Value = "",
+    Sig = "",
+    stringsAsFactors = FALSE
+  ),
+  run_binomial_test(total_both_true, total_both_false, "Overall Total")
+)
+
+# Append to consistency report
+cat("\n\n--- NEGATION INCONSISTENCY PATTERN ANALYSIS ---\n", file = consist_file, append = TRUE)
+cat("(Analyzing inconsistent cases: Both TRUE/FALSE, or One INSUFFICIENT INFO)\n\n", file = consist_file, append = TRUE)
+suppressWarnings(write.table(pattern_stats, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE, na = ""))
+
+cat("\n\nSTATISTICAL SIGNIFICANCE (Binomial Tests)\n", file = consist_file, append = TRUE)
+cat("(H0: Equal probability of Both TRUE vs Both FALSE patterns, p=0.5)\n", file = consist_file, append = TRUE)
+cat("(Note: 'One Insufficient' cases excluded from this test)\n\n", file = consist_file, append = TRUE)
+suppressWarnings(write.table(binom_tests, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE, na = ""))
+
+message("Added negation inconsistency pattern analysis to consistency report")
+
+# ==========================================
 # 4. CONFIDENCE & CORRELATION ANALYSIS
 # ==========================================
 message("--- Running Confidence & Correlation Analysis ---")

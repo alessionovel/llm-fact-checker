@@ -69,3 +69,28 @@ STATISTICAL SIGNIFICANCE (McNemar Tests)
 "P1 Recons. vs P2 Recons.","+0.70%","0.000","1","No"
 "P1 Recons. vs P1 Initial","-0.70%","0.000","1","No"
 "P2 Recons. vs P2 Initial","+3.52%","1.231","0.2673","No"
+
+
+--- NEGATION INCONSISTENCY PATTERN ANALYSIS ---
+(Analyzing inconsistent cases: Both TRUE/FALSE, or One INSUFFICIENT INFO)
+
+"Scenario","Total_Inconsistent","Both_TRUE_Count","Both_FALSE_Count","One_Insufficient_Count","Both_TRUE_Pct","Both_FALSE_Pct","One_Insufficient_Pct","Inconsistency_Rate","Consistent_Count","Both_Insufficient_Count"
+"Prompt 1 (Initial)",24,3,3,18,"12.50%","12.50%","75.00%","16.90%",113,5
+"Prompt 1 (Reconsidered)",15,1,5,9,"6.67%","33.33%","60.00%","10.56%",121,6
+"Prompt 2 (Initial)",29,3,3,23,"10.34%","10.34%","79.31%","20.42%",107,6
+"Prompt 2 (Reconsidered)",19,2,5,12,"10.53%","26.32%","63.16%","13.38%",116,7
+"---",,,,,"","","","",,
+"Overall Total",87,9,16,62,"10.34%","18.39%","71.26%","15.32%",457,24
+
+
+STATISTICAL SIGNIFICANCE (Binomial Tests)
+(H0: Equal probability of Both TRUE vs Both FALSE patterns, p=0.5)
+(Note: 'One Insufficient' cases excluded from this test)
+
+"Scenario","Both_TRUE","Both_FALSE","P_Value","Sig"
+"Prompt 1 (Initial)",3,3,"1","No"
+"Prompt 1 (Reconsidered)",1,5,"0.2188","No"
+"Prompt 2 (Initial)",3,3,"1","No"
+"Prompt 2 (Reconsidered)",2,5,"0.4531","No"
+"---",,,"",""
+"Overall Total",9,16,"0.2295","No"

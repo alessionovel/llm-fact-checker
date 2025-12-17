@@ -69,3 +69,28 @@ STATISTICAL SIGNIFICANCE (McNemar Tests)
 "P1 Recons. vs P2 Recons.","+10.56%","5.600","0.01796","Yes (*)"
 "P1 Recons. vs P1 Initial","-2.11%","0.075","0.7835","No"
 "P2 Recons. vs P2 Initial","-9.15%","3.064","0.08005","No"
+
+
+--- NEGATION INCONSISTENCY PATTERN ANALYSIS ---
+(Analyzing inconsistent cases: Both TRUE/FALSE, or One INSUFFICIENT INFO)
+
+"Scenario","Total_Inconsistent","Both_TRUE_Count","Both_FALSE_Count","One_Insufficient_Count","Both_TRUE_Pct","Both_FALSE_Pct","One_Insufficient_Pct","Inconsistency_Rate","Consistent_Count","Both_Insufficient_Count"
+"Prompt 1 (Initial)",48,0,25,23,"0.00%","52.08%","47.92%","33.80%",85,9
+"Prompt 1 (Reconsidered)",51,23,7,21,"45.10%","13.73%","41.18%","35.92%",86,5
+"Prompt 2 (Initial)",55,1,39,15,"1.82%","70.91%","27.27%","38.73%",84,3
+"Prompt 2 (Reconsidered)",55,16,10,29,"29.09%","18.18%","52.73%","38.73%",77,10
+"---",,,,,"","","","",,
+"Overall Total",209,40,81,88,"19.14%","38.76%","42.11%","36.80%",332,27
+
+
+STATISTICAL SIGNIFICANCE (Binomial Tests)
+(H0: Equal probability of Both TRUE vs Both FALSE patterns, p=0.5)
+(Note: 'One Insufficient' cases excluded from this test)
+
+"Scenario","Both_TRUE","Both_FALSE","P_Value","Sig"
+"Prompt 1 (Initial)",0,25,"5.96e-08","Yes (*)"
+"Prompt 1 (Reconsidered)",23,7,"0.005223","Yes (*)"
+"Prompt 2 (Initial)",1,39,"7.458e-11","Yes (*)"
+"Prompt 2 (Reconsidered)",16,10,"0.3269","No"
+"---",,,"",""
+"Overall Total",40,81,"0.0002442","Yes (*)"
