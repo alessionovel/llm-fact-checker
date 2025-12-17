@@ -170,6 +170,8 @@ The R script performs comprehensive statistical analysis and generates four deta
 Evaluates binary correctness of model verdicts against ground truth:
 - **Accuracy percentages** for each scenario (Prompt 1/2, Initial/Reconsidered)
 - **Correct counts**: Number of correct predictions (excluding abstentions)
+- **False_Positives**: Cases where verdict was TRUE but ground truth was FALSE
+- **False_Negatives**: Cases where verdict was FALSE but ground truth was TRUE
 - **Abstained counts**: Cases where model returned `INSUFFICIENT INFO`
 - **Total attempted**: Valid predictions (excluding abstentions)
 - **Overall pooled statistics**: Aggregate accuracy across all scenarios
