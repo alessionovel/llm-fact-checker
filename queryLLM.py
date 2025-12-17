@@ -144,28 +144,6 @@ def query_llm(statement, client, verbose=False):
 
     return results
 
-def process_statements(statements, client, verbose=False):
-    """
-    Processes each statement by querying the LLM.
-    
-    Args:
-        statements (list): List of statements to process
-        client (OpenAI): The LLM client instance
-        verbose (bool): If True, print detailed information
-    
-    Returns:
-        list: List of dictionaries containing the results for each statement
-    """
-    results = []
-    
-    for statement in tqdm(statements, desc="Processing statements", unit="statement"):
-        llm_results = query_llm(statement, client, verbose)
-        row = {'statement': statement}
-        row.update(llm_results)
-        results.append(row)
-    
-    return results
-
 def save_results_to_excel(results, output_path):
     """
     Saves the results to an Excel file.
