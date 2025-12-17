@@ -72,7 +72,7 @@ STATISTICAL SIGNIFICANCE (McNemar Tests)
 
 
 --- NEGATION INCONSISTENCY PATTERN ANALYSIS ---
-(Analyzing inconsistent cases: Both TRUE/FALSE, or One INSUFFICIENT INFO)
+(Analyzing inconsistent cases: Both TRUE/FALSE or One INSUFFICIENT INFO)
 
 "Scenario","Total_Inconsistent","Both_TRUE_Count","Both_FALSE_Count","One_Insufficient_Count","Both_TRUE_Pct","Both_FALSE_Pct","One_Insufficient_Pct","Inconsistency_Rate","Consistent_Count","Both_Insufficient_Count"
 "Prompt 1 (Initial)",48,0,25,23,"0.00%","52.08%","47.92%","33.80%",85,9
@@ -84,7 +84,7 @@ STATISTICAL SIGNIFICANCE (McNemar Tests)
 
 
 STATISTICAL SIGNIFICANCE (Binomial Tests)
-(H0: Equal probability of Both TRUE vs Both FALSE patterns, p=0.5)
+(H0: Equal probability of Both TRUE vs Both FALSE patterns p=0.5)
 (Note: 'One Insufficient' cases excluded from this test)
 
 "Scenario","Both_TRUE","Both_FALSE","P_Value","Sig"

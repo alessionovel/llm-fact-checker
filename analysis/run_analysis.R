@@ -785,11 +785,11 @@ binom_tests <- rbind(
 
 # Append to consistency report
 cat("\n\n--- NEGATION INCONSISTENCY PATTERN ANALYSIS ---\n", file = consist_file, append = TRUE)
-cat("(Analyzing inconsistent cases: Both TRUE/FALSE, or One INSUFFICIENT INFO)\n\n", file = consist_file, append = TRUE)
+cat("(Analyzing inconsistent cases: Both TRUE/FALSE or One INSUFFICIENT INFO)\n\n", file = consist_file, append = TRUE)
 suppressWarnings(write.table(pattern_stats, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE, na = ""))
 
 cat("\n\nSTATISTICAL SIGNIFICANCE (Binomial Tests)\n", file = consist_file, append = TRUE)
-cat("(H0: Equal probability of Both TRUE vs Both FALSE patterns, p=0.5)\n", file = consist_file, append = TRUE)
+cat("(H0: Equal probability of Both TRUE vs Both FALSE patterns p=0.5)\n", file = consist_file, append = TRUE)
 cat("(Note: 'One Insufficient' cases excluded from this test)\n\n", file = consist_file, append = TRUE)
 suppressWarnings(write.table(binom_tests, file = consist_file, sep = ",", row.names = FALSE, col.names = TRUE, append = TRUE, na = ""))
 
