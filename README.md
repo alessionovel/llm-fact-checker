@@ -1,6 +1,6 @@
 # LLM Fact Checker
 
-How reliable are large language models as fact-checkers, and do they stay **logically consistent**? This university course project asks three models to judge the same claims phrased in three ways and measures how accurate they are, whether their answers contradict each other, and whether they change their mind when asked to reconsider.
+How reliable are large language models as fact-checkers, and do they stay **logically consistent**? This project for the university course *Language and Social Cognition* asks three models to judge the same claims phrased in three ways and measures how accurate they are, whether their answers contradict each other, and whether they change their mind when asked to reconsider.
 
 ## The experiment
 
